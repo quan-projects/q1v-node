@@ -1,0 +1,5 @@
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    if ((NOT APPLE) AND (NOT IOS) AND (NOT ANDROID))
+        include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros/flags/linux.cmake")
+    endif()
+endif()

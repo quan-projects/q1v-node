@@ -1,8 +1,22 @@
 *
 !.gitignore
 
+!cmake/
+!cmake/**
+
+!full_copyright/
+!full_copyright/**
+
+!dev/
+!dev/**
+
+!q1v/
+!q1v/**
 
 !LICENSE
 !README.md
 !VERSION
+!ReleaseNotes.txt
+
+!CMakeLists.txt
 

@@ -1,0 +1,67 @@
+Release notes Quan
+
+v2.0.0
+- Rebrand Quan Project
+
+v1.6.9
+- Introduces new tool for wallets' optimization on containers (walletd)
+-- https://wiki.niobiocash.money/walletd-json-rpc-api#optimization-tool-for-rpc-wallets
+- Fixes frequent resets for large containers
+
+v1.6.8
+- Reduce limits for fusion transactions
+- Implements NCIP 0004 for flexible Wallet Nodes
+-- NCIP0004: Extend feeaddress response to give fee percent back
+- Introduce "Validate Address" method for walletd and daemon.
+- Small fixes on pointers handling and stack
+
+v1.6.7
+- Protection against 51% attack
+- Change DAA to LWMA1 (LWMAAdjusted)
+- Load dns checkpoints before validating alternative blocks
+- Rollback chain when node missed upgrade
+
+v1.6.5
+- Burn vector attack protection
+
+v1.6.4
+- Fix Windows compilation issues
+- Security fix for double counting tx
+- Fix http issue accepting connection
+
+v1.6.3
+- DNS Checkpoints
+- Optimizes use of checkpoints
+- Fix multithreading hanging on wallets
+- Clean log messages
+- Now compiles on GNU C 7+
+- Bug fixes
+
+v1.6.2
+- Change PoW to Cryptonight Heavy
+- Change Emission Speed Factor to 20
+- New API method for RPC Server: f_blocks_limited_json.
+  {
+    "params":
+      {"height": <height>, "limit": <limit>},
+      "jsonrpc": "2.0",
+      "id": "test",
+      "method": "f_blocks_limited_json"
+  }
+  Returns <limit> blocks ending at height <height>.
+  Use <height> equal zero to get the <limit> more recent blocks.
+  limit bigger than 30 only when binding RPC address to loopback.
+  Example:
+  curl -X POST -i -H "Accept: application/json" -d '{"params": {"height": 10000, "limit": 50}, "jsonrpc": "2.0", "id": "test", "method": "f_blocks_limited_json"}' http://127.0.0.1:8314/json_rpc
+
+v.1.6.0-Bes
+- New difficulty algorithm: LWMA by zawy12
+- Future timestamp limit reduced
+
+v.1.5.0-Nephthys
+- Bug fixes;
+- Performance improvements: mempool cache and swapped vector better management
+- New command line flag: --cache-size, to control number of blocks to keep in cache. Default is 2048. Use: --cache-size <value>
+
+v.1.4.5-horus
+- Included fees payments to developers and research funds
