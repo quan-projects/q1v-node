@@ -1,2 +1,8 @@
-# q1v-node
-Asset Q1V's node
+## This project is maintained by [Quan Project](https://quan-project.com/)
+
+## This code is developed only for linux 64bits, to use in another operating system, use container with our docker image
+
+## [Releases with:](https://github.com/quan-projects/q1v-node/releases)
+- Linux Binary
+- Source Code of Binary
+
