@@ -6,3 +6,11 @@
 - Linux Binary
 - Source Code of Binary
 
+## Branch:
+- version in development: https://github.com/quan-projects/q1v-node/tree/stage
+- stable version: https://github.com/quan-projects/q1v-node/tree/main
+
+## [Wiki](https://github.com/quan-projects/q1v-node/wiki)
+- build instructions
+- information about libraries
+- version information
