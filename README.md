@@ -8,7 +8,7 @@
 
 ## Branch:
 - version in development: https://github.com/quan-projects/q1v-node/tree/stage
-- stable version: https://github.com/quan-projects/q1v-node/tree/main
+- stable version: https://github.com/quan-projects/q1v-node/tree/stable
 
 ## [Wiki](https://github.com/quan-projects/q1v-node/wiki)
 - build instructions
