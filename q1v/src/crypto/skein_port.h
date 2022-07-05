@@ -52,16 +52,16 @@
 */
 
 #define ui_type(size)               uint##size##_t
-#define dec_unit_type(size,x)       typedef ui_type(size) x
-#define dec_bufr_type(size,bsize,x) typedef ui_type(size) x[bsize / (size >> 3)]
-#define ptr_cast(x,size)            ((ui_type(size)*)(x))
+#define dec_unit_type(size, x)       typedef ui_type(size) x
+#define dec_bufr_type(size, bsize, x) typedef ui_type(size) x[bsize / (size >> 3)]
+#define ptr_cast(x, size)            ((ui_type(size)*)(x))
 
-typedef unsigned int    uint_t;             /* native unsigned integer */
-typedef uint8_t         u08b_t;             /*  8-bit unsigned integer */
-typedef uint64_t        u64b_t;             /* 64-bit unsigned integer */
+typedef unsigned int uint_t;             /* native unsigned integer */
+typedef uint8_t u08b_t;             /*  8-bit unsigned integer */
+typedef uint64_t u64b_t;             /* 64-bit unsigned integer */
 
 #ifndef RotL_64
-#define RotL_64(x,N)    (((x) << (N)) | ((x) >> (64-(N))))
+#define RotL_64(x, N)    (((x) << (N)) | ((x) >> (64-(N))))
 #endif
 
 /*
@@ -84,7 +84,6 @@ typedef uint64_t        u64b_t;             /* 64-bit unsigned integer */
  *
  */
 #ifndef SKEIN_NEED_SWAP /* compile-time "override" for endianness? */
-
 
 #include "common/int-util.h"
 
@@ -112,16 +111,15 @@ typedef uint64_t        u64b_t;             /* 64-bit unsigned integer */
 #  define PLATFORM_MUST_ALIGN (0)
 #endif
 
-
 #if   PLATFORM_BYTE_ORDER == IS_BIG_ENDIAN
-    /* here for big-endian CPUs */
+/* here for big-endian CPUs */
 #define SKEIN_NEED_SWAP   (1)
 #elif PLATFORM_BYTE_ORDER == IS_LITTLE_ENDIAN
-    /* here for x86 and x86-64 CPUs (and other detected little-endian CPUs) */
+/* here for x86 and x86-64 CPUs (and other detected little-endian CPUs) */
 #define SKEIN_NEED_SWAP   (0)
 #if   PLATFORM_MUST_ALIGN == 0              /* ok to use "fast" versions? */
-#define Skein_Put64_LSB_First(dst08,src64,bCnt) memcpy(dst08,src64,bCnt)
-#define Skein_Get64_LSB_First(dst64,src08,wCnt) memcpy(dst64,src08,8*(wCnt))
+#define Skein_Put64_LSB_First(dst08, src64, bCnt) memcpy(dst08,src64,bCnt)
+#define Skein_Get64_LSB_First(dst64, src08, wCnt) memcpy(dst64,src08,8*(wCnt))
 #endif
 #else
 #error "Skein needs endianness setting!"
@@ -150,7 +148,6 @@ typedef uint64_t        u64b_t;             /* 64-bit unsigned integer */
 #endif
 #endif  /* ifndef Skein_Swap64 */
 
-
 #ifndef Skein_Put64_LSB_First
 void    Skein_Put64_LSB_First(u08b_t *dst,const u64b_t *src,size_t bCnt)
 #ifdef  SKEIN_PORT_CODE /* instantiate the function code here? */
@@ -164,7 +161,6 @@ void    Skein_Put64_LSB_First(u08b_t *dst,const u64b_t *src,size_t bCnt)
     ;    /* output only the function prototype */
 #endif
 #endif   /* ifndef Skein_Put64_LSB_First */
-
 
 #ifndef Skein_Get64_LSB_First
 void    Skein_Get64_LSB_First(u64b_t *dst,const u08b_t *src,size_t wCnt)

@@ -1,8 +1,8 @@
 /**
  * Copyright (c) 2012-2016, The CryptoNote developers, The Bytecoin developers
+ * Copyright (c) 2021-2022, The Quan Project developers
  *
  * Full source's copyright information can be found in the "/full_copyright/bytecoin_copyright.txt"
- *
 */
 
 #include "Util.h"
@@ -21,7 +21,6 @@
 #include <sys/utsname.h>
 
 #endif
-
 
 namespace Tools {
 #ifdef WIN32
@@ -261,7 +260,6 @@ namespace Tools {
 
 #endif
 
-
     std::string get_os_version_string() {
 #ifdef WIN32
         return get_windows_version_display_string();
@@ -269,7 +267,6 @@ namespace Tools {
         return get_nix_version_display_string();
 #endif
     }
-
 
 #ifdef WIN32
     std::string get_special_folder_path(int nfolder, bool iscreate)
@@ -361,6 +358,5 @@ namespace Tools {
         boost::system::error_code ec;
         return boost::filesystem::is_directory(path, ec);
     }
-
 
 } // namespace

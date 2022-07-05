@@ -1,8 +1,8 @@
 /**
  * Copyright (c) 2012-2016, The CryptoNote developers, The Bytecoin developers
+ * Copyright (c) 2021-2022, The Quan Project developers
  *
  * Full source's copyright information can be found in the "/full_copyright/bytecoin_copyright.txt"
- *
 */
 
 #pragma once
@@ -26,15 +26,15 @@ namespace Tools {
     }
 
     template<typename t_type>
-    std::string get_varint_data(const t_type& v)
-    {
-      std::stringstream ss;
-      write_varint(std::ostreambuf_iterator<char>(ss), v);
-      return ss.str();
+    std::string get_varint_data(const t_type &v) {
+        std::stringstream ss;
+        write_varint(std::ostreambuf_iterator<char>(ss), v);
+        return ss.str();
     }
 
     template<int bits, typename InputIt, typename T>
-    typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value && 0 <= bits && bits <= std::numeric_limits<T>::digits, int>::type
+    typename std::enable_if<std::is_integral<T>::value && std::is_unsigned<T>::value && 0 <= bits &&
+                            bits <= std::numeric_limits<T>::digits, int>::type
     read_varint(InputIt &&first, InputIt &&last, T &i) {
         int read = 0;
         i = 0;
