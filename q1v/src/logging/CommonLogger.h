@@ -12,23 +12,28 @@
 
 namespace Logging {
 
-class CommonLogger : public ILogger {
-public:
+    class CommonLogger : public ILogger {
+    public:
 
-  virtual void operator()(const std::string& category, Level level, boost::posix_time::ptime time, const std::string& body) override;
-  virtual void enableCategory(const std::string& category);
-  virtual void disableCategory(const std::string& category);
-  virtual void setMaxLevel(Level level);
+        virtual void operator()(const std::string &category, Level level, boost::posix_time::ptime time,
+                                const std::string &body) override;
 
-  void setPattern(const std::string& pattern);
+        virtual void enableCategory(const std::string &category);
 
-protected:
-  std::set<std::string> disabledCategories;
-  Level logLevel;
-  std::string pattern;
+        virtual void disableCategory(const std::string &category);
 
-  CommonLogger(Level level);
-  virtual void doLogString(const std::string& message);
-};
+        virtual void setMaxLevel(Level level);
+
+        void setPattern(const std::string &pattern);
+
+    protected:
+        std::set<std::string> disabledCategories;
+        Level logLevel;
+        std::string pattern;
+
+        CommonLogger(Level level);
+
+        virtual void doLogString(const std::string &message);
+    };
 
 }

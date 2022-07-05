@@ -24,204 +24,202 @@
 
 namespace {
 
-void throwIfNotGood(std::istream& stream) {
-  if (stream.good()) {
-      // none
-  } else {
-      if (stream.eof()) {
-          // throw std::system_error(make_error_code(Q1v::error::HttpParserErrorCodes::END_OF_STREAM));
-      } else {
-          throw std::system_error(make_error_code(Q1v::error::HttpParserErrorCodes::STREAM_NOT_GOOD));
-      }
-  }
-}
+    void throwIfNotGood(std::istream &stream) {
+        if (stream.good()) {
+            // none
+        } else {
+            if (stream.eof()) {
+                // throw std::system_error(make_error_code(Q1v::error::HttpParserErrorCodes::END_OF_STREAM));
+            } else {
+                throw std::system_error(make_error_code(Q1v::error::HttpParserErrorCodes::STREAM_NOT_GOOD));
+            }
+        }
+    }
 
 }
 
 namespace Q1v {
 
-HttpResponse::HTTP_STATUS HttpParser::parseResponseStatusFromString(const std::string& status) {
-  if (status == "200 OK" || status == "200 Ok") return Q1v::HttpResponse::STATUS_200;
-  else if (status.substr(0, 4) == "401 ") return Q1v::HttpResponse::STATUS_401;
-  else if (status == "404 Not Found") return Q1v::HttpResponse::STATUS_404;
-  else if (status == "500 Internal Server Error") return Q1v::HttpResponse::STATUS_500;
-  else throw std::system_error(make_error_code(Q1v::error::HttpParserErrorCodes::UNEXPECTED_SYMBOL),
-      "Unknown HTTP status code is given");
+    HttpResponse::HTTP_STATUS HttpParser::parseResponseStatusFromString(const std::string &status) {
+        if (status == "200 OK" || status == "200 Ok") return Q1v::HttpResponse::STATUS_200;
+        else if (status.substr(0, 4) == "401 ") return Q1v::HttpResponse::STATUS_401;
+        else if (status == "404 Not Found") return Q1v::HttpResponse::STATUS_404;
+        else if (status == "500 Internal Server Error") return Q1v::HttpResponse::STATUS_500;
+        else
+            throw std::system_error(make_error_code(Q1v::error::HttpParserErrorCodes::UNEXPECTED_SYMBOL),
+                                    "Unknown HTTP status code is given");
 
-  return Q1v::HttpResponse::STATUS_200; //unaccessible
-}
-
-
-void HttpParser::receiveRequest(std::istream& stream, HttpRequest& request) {
-  readWord(stream, request.method);
-  readWord(stream, request.url);
-
-  std::string httpVersion;
-  readWord(stream, httpVersion);
-
-  readHeaders(stream, request.headers);
-
-  std::string body;
-  size_t bodyLen = getBodyLen(request.headers);
-  if (bodyLen) {
-    readBody(stream, request.body, bodyLen);
-  }
-}
-
-
-void HttpParser::receiveResponse(std::istream& stream, HttpResponse& response) {
-  std::string httpVersion;
-  readWord(stream, httpVersion);
-
-  std::string status;
-  char c;
-
-  stream.get(c);
-  while (stream.good() && c != '\r') { //Till the end
-    status += c;
-    stream.get(c);
-  }
-
-  throwIfNotGood(stream);
-
-  if (c == '\r') {
-    stream.get(c);
-    if (c != '\n') {
-      throw std::runtime_error("Parser error: '\\n' symbol is expected");
+        return Q1v::HttpResponse::STATUS_200; //unaccessible
     }
-  }
 
-  response.setStatus(parseResponseStatusFromString(status));
+    void HttpParser::receiveRequest(std::istream &stream, HttpRequest &request) {
+        readWord(stream, request.method);
+        readWord(stream, request.url);
 
-  std::string name;
-  std::string value;
+        std::string httpVersion;
+        readWord(stream, httpVersion);
 
-  while (readHeader(stream, name, value)) {
-    response.addHeader(name, value);
-    name.clear();
-    value.clear();
-  }
+        readHeaders(stream, request.headers);
 
-  response.addHeader(name, value);
-  auto headers = response.getHeaders();
-  size_t length = 0;
-  auto it = headers.find("content-length");
-  if (it != headers.end()) {
-    length = std::stoul(it->second);
-  }
-
-  std::string body;
-  if (length) {
-    readBody(stream, body, length);
-  }
-
-  response.setBody(body);
-}
-
-
-void HttpParser::readWord(std::istream& stream, std::string& word) {
-  char c;
-
-  stream.get(c);
-  while (stream.good() && c != ' ' && c != '\r') {
-    word += c;
-    stream.get(c);
-  }
-
-  throwIfNotGood(stream);
-
-  if (c == '\r') {
-    stream.get(c);
-    if (c != '\n') {
-      throw std::system_error(make_error_code(Q1v::error::HttpParserErrorCodes::UNEXPECTED_SYMBOL));
+        std::string body;
+        size_t bodyLen = getBodyLen(request.headers);
+        if (bodyLen) {
+            readBody(stream, request.body, bodyLen);
+        }
     }
-  }
-}
 
-void HttpParser::readHeaders(std::istream& stream, HttpRequest::Headers& headers) {
-  std::string name;
-  std::string value;
+    void HttpParser::receiveResponse(std::istream &stream, HttpResponse &response) {
+        std::string httpVersion;
+        readWord(stream, httpVersion);
 
-  while (readHeader(stream, name, value)) {
-    headers[name] = value; //use insert
-    name.clear();
-    value.clear();
-  }
-  headers[name] = value;
-}
+        std::string status;
+        char c;
 
-bool HttpParser::readHeader(std::istream& stream, std::string& name, std::string& value) {
-  char c;
-  bool isName = true;
-
-  stream.get(c);
-  while (stream.good() && c != '\r') {
-    if (c == ':') {
-      if (stream.peek() == ' ') {
         stream.get(c);
-      }
+        while (stream.good() && c != '\r') { //Till the end
+            status += c;
+            stream.get(c);
+        }
 
-      if (name.empty()) {
-        throw std::system_error(make_error_code(Q1v::error::HttpParserErrorCodes::EMPTY_HEADER));
-      }
+        throwIfNotGood(stream);
 
-      if (isName) {
-        isName = false;
+        if (c == '\r') {
+            stream.get(c);
+            if (c != '\n') {
+                throw std::runtime_error("Parser error: '\\n' symbol is expected");
+            }
+        }
+
+        response.setStatus(parseResponseStatusFromString(status));
+
+        std::string name;
+        std::string value;
+
+        while (readHeader(stream, name, value)) {
+            response.addHeader(name, value);
+            name.clear();
+            value.clear();
+        }
+
+        response.addHeader(name, value);
+        auto headers = response.getHeaders();
+        size_t length = 0;
+        auto it = headers.find("content-length");
+        if (it != headers.end()) {
+            length = std::stoul(it->second);
+        }
+
+        std::string body;
+        if (length) {
+            readBody(stream, body, length);
+        }
+
+        response.setBody(body);
+    }
+
+    void HttpParser::readWord(std::istream &stream, std::string &word) {
+        char c;
+
         stream.get(c);
-        continue;
-      }
+        while (stream.good() && c != ' ' && c != '\r') {
+            word += c;
+            stream.get(c);
+        }
+
+        throwIfNotGood(stream);
+
+        if (c == '\r') {
+            stream.get(c);
+            if (c != '\n') {
+                throw std::system_error(make_error_code(Q1v::error::HttpParserErrorCodes::UNEXPECTED_SYMBOL));
+            }
+        }
     }
 
-    if (isName) {
-      name += c;
-      stream.get(c);
-    } else {
-      value += c;
-      stream.get(c);
-    }
-  }
+    void HttpParser::readHeaders(std::istream &stream, HttpRequest::Headers &headers) {
+        std::string name;
+        std::string value;
 
-  throwIfNotGood(stream);
-
-  stream.get(c);
-  if (c != '\n') {
-    return false;
-  }
-
-  std::transform(name.begin(), name.end(), name.begin(), ::tolower);
-
-  c = stream.peek();
-  if (c == '\r') {
-    stream.get(c).get(c);
-    if (c != '\n') {
-      throw std::system_error(make_error_code(Q1v::error::HttpParserErrorCodes::UNEXPECTED_SYMBOL));
+        while (readHeader(stream, name, value)) {
+            headers[name] = value; //use insert
+            name.clear();
+            value.clear();
+        }
+        headers[name] = value;
     }
 
-    return false; //no more headers
-  }
+    bool HttpParser::readHeader(std::istream &stream, std::string &name, std::string &value) {
+        char c;
+        bool isName = true;
 
-  return true;
-}
+        stream.get(c);
+        while (stream.good() && c != '\r') {
+            if (c == ':') {
+                if (stream.peek() == ' ') {
+                    stream.get(c);
+                }
 
-size_t HttpParser::getBodyLen(const HttpRequest::Headers& headers) {
-  auto it = headers.find("content-length");
-  if (it != headers.end()) {
-    size_t bytes = std::stoul(it->second);
-    return bytes;
-  }
+                if (name.empty()) {
+                    throw std::system_error(make_error_code(Q1v::error::HttpParserErrorCodes::EMPTY_HEADER));
+                }
 
-  return 0;
-}
+                if (isName) {
+                    isName = false;
+                    stream.get(c);
+                    continue;
+                }
+            }
 
-void HttpParser::readBody(std::istream& stream, std::string& body, const size_t bodyLen) {
-  size_t read = 0;
+            if (isName) {
+                name += c;
+                stream.get(c);
+            } else {
+                value += c;
+                stream.get(c);
+            }
+        }
 
-  while (stream.good() && read < bodyLen) {
-    body += stream.get();
-    ++read;
-  }
+        throwIfNotGood(stream);
 
-  throwIfNotGood(stream);
-}
+        stream.get(c);
+        if (c != '\n') {
+            return false;
+        }
+
+        std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+        c = stream.peek();
+        if (c == '\r') {
+            stream.get(c).get(c);
+            if (c != '\n') {
+                throw std::system_error(make_error_code(Q1v::error::HttpParserErrorCodes::UNEXPECTED_SYMBOL));
+            }
+
+            return false; //no more headers
+        }
+
+        return true;
+    }
+
+    size_t HttpParser::getBodyLen(const HttpRequest::Headers &headers) {
+        auto it = headers.find("content-length");
+        if (it != headers.end()) {
+            size_t bytes = std::stoul(it->second);
+            return bytes;
+        }
+
+        return 0;
+    }
+
+    void HttpParser::readBody(std::istream &stream, std::string &body, const size_t bodyLen) {
+        size_t read = 0;
+
+        while (stream.good() && read < bodyLen) {
+            body += stream.get();
+            ++read;
+        }
+
+        throwIfNotGood(stream);
+    }
 
 }

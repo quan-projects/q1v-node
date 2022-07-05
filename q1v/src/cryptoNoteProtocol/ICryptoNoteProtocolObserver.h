@@ -13,11 +13,13 @@
 
 namespace Q1v {
 
-class ICryptoNoteProtocolObserver {
-public:
-  virtual void peerCountUpdated(size_t count) {}
-  virtual void lastKnownBlockHeightUpdated(uint32_t height) {}
-  virtual void blockchainSynchronized(uint32_t topHeight) {}
-};
+    class ICryptoNoteProtocolObserver {
+    public:
+        virtual void peerCountUpdated(size_t count) {}
+
+        virtual void lastKnownBlockHeightUpdated(uint32_t height) {}
+
+        virtual void blockchainSynchronized(uint32_t topHeight) {}
+    };
 
 } //namespace Q1v

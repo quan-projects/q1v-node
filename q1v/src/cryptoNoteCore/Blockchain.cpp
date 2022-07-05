@@ -39,25 +39,27 @@ namespace {
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCDFAInspection"
-std::string appendPath(const std::string& path, const std::string& fileName) {
-  std::string result = path;
-    if (!result.empty()) result += '/';
 
-  result += fileName;
-  return result;
-}
+    std::string appendPath(const std::string &path, const std::string &fileName) {
+        std::string result = path;
+        if (!result.empty()) result += '/';
+
+        result += fileName;
+        return result;
+    }
+
 #pragma clang diagnostic pop
 
 }
 
 namespace std { // NOLINT(cert-dcl58-cpp)
-bool operator<(const Crypto::Hash& hash1, const Crypto::Hash& hash2) {
-  return memcmp(&hash1, &hash2, Crypto::HASH_SIZE) < 0;
-}
+    bool operator<(const Crypto::Hash &hash1, const Crypto::Hash &hash2) {
+        return memcmp(&hash1, &hash2, Crypto::HASH_SIZE) < 0;
+    }
 
-bool operator<(const Crypto::KeyImage& keyImage1, const Crypto::KeyImage& keyImage2) {
-  return memcmp(&keyImage1, &keyImage2, 32) < 0;
-}
+    bool operator<(const Crypto::KeyImage &keyImage1, const Crypto::KeyImage &keyImage2) {
+        return memcmp(&keyImage1, &keyImage2, 32) < 0;
+    }
 }
 
 #define CURRENT_BLOCKCACHE_STORAGE_ARCHIVE_VER 1
@@ -66,26 +68,26 @@ bool operator<(const Crypto::KeyImage& keyImage1, const Crypto::KeyImage& keyIma
 #define BLOCK_HEIGHT_ALIGNMENT_FUTURE_TIMESTAMP 71500
 
 namespace Q1v {
-class BlockCacheSerializer;
-class BlockchainIndicesSerializer;
+    class BlockCacheSerializer;
+
+    class BlockchainIndicesSerializer;
 }
 
 namespace Q1v {
 
     template<typename K, typename V, typename Hash>
-    bool serialize(google::sparse_hash_map<K, V, Hash> &value, Common::StringView name,
-                   Q1v::ISerializer &serializer) {
+    bool serialize(google::sparse_hash_map<K, V, Hash> &value, Common::StringView name, Q1v::ISerializer &serializer) {
         return serializeMap(value, name, serializer, [&value](size_t size) { value.resize(size); });
     }
 
     template<typename K, typename Hash>
     bool
-    serialize(google::sparse_hash_set<K, Hash> &value, const Common::StringView& name, Q1v::ISerializer &serializer) {
+    serialize(google::sparse_hash_set<K, Hash> &value, const Common::StringView &name, Q1v::ISerializer &serializer) {
         size_t size = value.size();
         if (!serializer.beginArray(size, name)) return false;
 
         if (serializer.type() == ISerializer::OUTPUT) {
-            for (auto &key : value) {
+            for (auto &key: value) {
                 serializer(const_cast<K &>(key), "");
             }
         } else {
@@ -102,8 +104,9 @@ namespace Q1v {
     }
 
 // custom serialization to speedup cache loading
-    bool serialize(std::vector<std::pair<Blockchain::TransactionIndex, uint16_t>> &value, const Common::StringView& name,
-                   Q1v::ISerializer &s) {
+    bool
+    serialize(std::vector<std::pair<Blockchain::TransactionIndex, uint16_t>> &value, const Common::StringView &name,
+              Q1v::ISerializer &s) {
         const size_t elementSize = sizeof(std::pair<Blockchain::TransactionIndex, uint16_t>);
         size_t size = value.size() * elementSize;
 
@@ -132,8 +135,12 @@ namespace Q1v {
     class BlockCacheSerializer {
 
     public:
-        BlockCacheSerializer(Blockchain &bs, const Crypto::Hash lastBlockHash, ILogger &logger) :
-                m_bs(bs), m_lastBlockHash(lastBlockHash), m_loaded(false), logger(logger, "BlockCacheSerializer") {
+        BlockCacheSerializer(Blockchain &bs, const Crypto::Hash lastBlockHash, ILogger &logger) : m_bs(bs),
+                                                                                                  m_lastBlockHash(
+                                                                                                          lastBlockHash),
+                                                                                                  m_loaded(false),
+                                                                                                  logger(logger,
+                                                                                                         "BlockCacheSerializer") {
         }
 
         void load(const std::string &filename) {
@@ -231,9 +238,13 @@ namespace Q1v {
     class BlockchainIndicesSerializer {
 
     public:
-        BlockchainIndicesSerializer(Blockchain &bs, const Crypto::Hash lastBlockHash, ILogger &logger) :
-                m_bs(bs), m_lastBlockHash(lastBlockHash), m_loaded(false),
-                logger(logger, "BlockchainIndicesSerializer") {
+        BlockchainIndicesSerializer(Blockchain &bs, const Crypto::Hash lastBlockHash, ILogger &logger) : m_bs(bs),
+                                                                                                         m_lastBlockHash(
+                                                                                                                 lastBlockHash),
+                                                                                                         m_loaded(
+                                                                                                                 false),
+                                                                                                         logger(logger,
+                                                                                                                "BlockchainIndicesSerializer") {
         }
 
         void serialize(ISerializer &s) {
@@ -321,33 +332,44 @@ namespace Q1v {
         Crypto::Hash m_lastBlockHash;
     };
 
-
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
+
     Blockchain::Blockchain(const Currency &currency, tx_memory_pool &tx_pool, ILogger &logger,
-                           bool blockchainIndexesEnabled, int poolSize) :
-            logger(logger, "Blockchain"),
-            m_currency(currency),
-            m_tx_pool(tx_pool),
-            m_current_block_cumul_sz_limit(0),
-            m_is_in_checkpoint_zone(false),
-            m_upgradeDetectorV2(currency, m_blocks, BLOCK_MAJOR_VERSION_2, logger),
-            m_upgradeDetectorV3(currency, m_blocks, BLOCK_MAJOR_VERSION_3, logger),
-            m_upgradeDetectorV4(currency, m_blocks, BLOCK_MAJOR_VERSION_4, logger),
-            m_upgradeDetectorV5(currency, m_blocks, BLOCK_MAJOR_VERSION_5, logger),
-            m_upgradeDetectorV6(currency, m_blocks, BLOCK_MAJOR_VERSION_6, logger),
-            m_checkpoints(logger),
-            m_paymentIdIndex(blockchainIndexesEnabled),
-            m_timestampIndex(blockchainIndexesEnabled),
-            m_generatedTransactionsIndex(blockchainIndexesEnabled),
-            m_orthanBlocksIndex(blockchainIndexesEnabled),
-            m_blockchainIndexesEnabled(blockchainIndexesEnabled),
-            m_poolSize(poolSize) {
+                           bool blockchainIndexesEnabled, int poolSize) : logger(logger, "Blockchain"),
+                                                                          m_currency(currency), m_tx_pool(tx_pool),
+                                                                          m_current_block_cumul_sz_limit(0),
+                                                                          m_is_in_checkpoint_zone(false),
+                                                                          m_upgradeDetectorV2(currency, m_blocks,
+                                                                                              BLOCK_MAJOR_VERSION_2,
+                                                                                              logger),
+                                                                          m_upgradeDetectorV3(currency, m_blocks,
+                                                                                              BLOCK_MAJOR_VERSION_3,
+                                                                                              logger),
+                                                                          m_upgradeDetectorV4(currency, m_blocks,
+                                                                                              BLOCK_MAJOR_VERSION_4,
+                                                                                              logger),
+                                                                          m_upgradeDetectorV5(currency, m_blocks,
+                                                                                              BLOCK_MAJOR_VERSION_5,
+                                                                                              logger),
+                                                                          m_upgradeDetectorV6(currency, m_blocks,
+                                                                                              BLOCK_MAJOR_VERSION_6,
+                                                                                              logger),
+                                                                          m_checkpoints(logger),
+                                                                          m_paymentIdIndex(blockchainIndexesEnabled),
+                                                                          m_timestampIndex(blockchainIndexesEnabled),
+                                                                          m_generatedTransactionsIndex(
+                                                                                  blockchainIndexesEnabled),
+                                                                          m_orthanBlocksIndex(blockchainIndexesEnabled),
+                                                                          m_blockchainIndexesEnabled(
+                                                                                  blockchainIndexesEnabled),
+                                                                          m_poolSize(poolSize) {
 
         m_outputs.set_deleted_key(0);
         Crypto::KeyImage nullImage = boost::value_initialized<decltype(nullImage)>();
         m_spent_keys.set_deleted_key(nullImage);
     }
+
 #pragma clang diagnostic pop
 
     bool Blockchain::addObserver(IBlockchainStorageObserver *observer) {
@@ -362,8 +384,8 @@ namespace Q1v {
         return checkTransactionInputs(tx, maxUsedBlock.height, maxUsedBlock.id);
     }
 
-    bool Blockchain::checkTransactionInputs(const Q1v::Transaction &tx, BlockInfo &maxUsedBlock,
-                                            BlockInfo &lastFailed) {
+    bool
+    Blockchain::checkTransactionInputs(const Q1v::Transaction &tx, BlockInfo &maxUsedBlock, BlockInfo &lastFailed) {
 
         BlockInfo tail;
 
@@ -411,8 +433,8 @@ namespace Q1v {
 */
     bool Blockchain::checkTransactionSize(size_t blobSize) {
         if (blobSize > getCurrentCumulativeBlocksizeLimit() - m_currency.minerTxBlobReservedSize()) {
-            logger(ERROR) << "transaction is too big " << blobSize << ", maximum allowed size is " <<
-                          (getCurrentCumulativeBlocksizeLimit() - m_currency.minerTxBlobReservedSize());
+            logger(ERROR) << "transaction is too big " << blobSize << ", maximum allowed size is "
+                          << (getCurrentCumulativeBlocksizeLimit() - m_currency.minerTxBlobReservedSize());
             return false;
         }
 
@@ -466,8 +488,7 @@ namespace Q1v {
         }
 
         if (m_blocks.empty()) {
-            logger(INFO, BRIGHT_WHITE)
-                    << "Blockchain not loaded, generating genesis block.";
+            logger(INFO, BRIGHT_WHITE) << "Blockchain not loaded, generating genesis block.";
             block_verification_context bvc = boost::value_initialized<block_verification_context>();
             pushBlock(m_currency.genesisBlock(), bvc);
             if (bvc.m_verifivation_failed) {
@@ -500,40 +521,40 @@ namespace Q1v {
             uint32_t upgradeHeight = m_upgradeDetectorV2.upgradeHeight();
             assert(upgradeHeight != UpgradeDetectorBase::UNDEF_HEIGHT);
             logger(WARNING, BRIGHT_YELLOW) << "Invalid block version at " << upgradeHeight + 1 << ": real="
-                                           << static_cast<int>(m_blocks[upgradeHeight + 1].bl.majorVersion) <<
-                                           " expected=" << static_cast<int>(m_upgradeDetectorV2.targetVersion())
+                                           << static_cast<int>(m_blocks[upgradeHeight + 1].bl.majorVersion)
+                                           << " expected=" << static_cast<int>(m_upgradeDetectorV2.targetVersion())
                                            << ". Rollback blockchain to height=" << upgradeHeight;
             rollbackBlockchainTo(upgradeHeight);
             reinitUpgradeDetectors = true;
         } else if (!checkUpgradeHeight(m_upgradeDetectorV3)) {
             uint32_t upgradeHeight = m_upgradeDetectorV3.upgradeHeight();
             logger(WARNING, BRIGHT_YELLOW) << "Invalid block version at " << upgradeHeight + 1 << ": real="
-                                           << static_cast<int>(m_blocks[upgradeHeight + 1].bl.majorVersion) <<
-                                           " expected=" << static_cast<int>(m_upgradeDetectorV3.targetVersion())
+                                           << static_cast<int>(m_blocks[upgradeHeight + 1].bl.majorVersion)
+                                           << " expected=" << static_cast<int>(m_upgradeDetectorV3.targetVersion())
                                            << ". Rollback blockchain to height=" << upgradeHeight;
             rollbackBlockchainTo(upgradeHeight);
             reinitUpgradeDetectors = true;
         } else if (!checkUpgradeHeight(m_upgradeDetectorV4)) {
             uint32_t upgradeHeight = m_upgradeDetectorV4.upgradeHeight();
             logger(WARNING, BRIGHT_YELLOW) << "Invalid block version at " << upgradeHeight + 1 << ": real="
-                                           << static_cast<int>(m_blocks[upgradeHeight + 1].bl.majorVersion) <<
-                                           " expected=" << static_cast<int>(m_upgradeDetectorV4.targetVersion())
+                                           << static_cast<int>(m_blocks[upgradeHeight + 1].bl.majorVersion)
+                                           << " expected=" << static_cast<int>(m_upgradeDetectorV4.targetVersion())
                                            << ". Rollback blockchain to height=" << upgradeHeight;
             rollbackBlockchainTo(upgradeHeight);
             reinitUpgradeDetectors = true;
         } else if (!checkUpgradeHeight(m_upgradeDetectorV5)) {
             uint32_t upgradeHeight = m_upgradeDetectorV5.upgradeHeight();
             logger(WARNING, BRIGHT_YELLOW) << "Invalid block version at " << upgradeHeight + 1 << ": real="
-                                           << static_cast<int>(m_blocks[upgradeHeight + 1].bl.majorVersion) <<
-                                           " expected=" << static_cast<int>(m_upgradeDetectorV5.targetVersion())
+                                           << static_cast<int>(m_blocks[upgradeHeight + 1].bl.majorVersion)
+                                           << " expected=" << static_cast<int>(m_upgradeDetectorV5.targetVersion())
                                            << ". Rollback blockchain to height=" << upgradeHeight;
             rollbackBlockchainTo(upgradeHeight);
             reinitUpgradeDetectors = true;
         } else if (!checkUpgradeHeight(m_upgradeDetectorV6)) {
             uint32_t upgradeHeight = m_upgradeDetectorV6.upgradeHeight();
             logger(WARNING, BRIGHT_YELLOW) << "Invalid block version at " << upgradeHeight + 1 << ": real="
-                                           << static_cast<int>(m_blocks[upgradeHeight + 1].bl.majorVersion) <<
-                                           " expected=" << static_cast<int>(m_upgradeDetectorV6.targetVersion())
+                                           << static_cast<int>(m_blocks[upgradeHeight + 1].bl.majorVersion)
+                                           << " expected=" << static_cast<int>(m_upgradeDetectorV6.targetVersion())
                                            << ". Rollback blockchain to height=" << upgradeHeight;
             rollbackBlockchainTo(upgradeHeight);
             reinitUpgradeDetectors = true;
@@ -554,10 +575,9 @@ namespace Q1v {
         }
 
         m_blocks.clear_cache();
-        logger(INFO, BRIGHT_GREEN)
-                << "Blockchain initialized. last block: " << m_blocks.size() - 1 << ", "
-                << Common::timeIntervalToString(timestamp_diff)
-                << " time ago, current difficulty: " << getDifficultyForNextBlock();
+        logger(INFO, BRIGHT_GREEN) << "Blockchain initialized. last block: " << m_blocks.size() - 1 << ", "
+                                   << Common::timeIntervalToString(timestamp_diff) << " time ago, current difficulty: "
+                                   << getDifficultyForNextBlock();
         return true;
     }
 
@@ -582,7 +602,7 @@ namespace Q1v {
                 m_transactionMap.insert(std::make_pair(transactionHash, transactionIndex));
 
                 // process inputs
-                for (auto &i : transaction.tx.inputs) {
+                for (auto &i: transaction.tx.inputs) {
                     if (i.type() == typeid(KeyInput)) {
                         m_spent_keys.insert(::boost::get<KeyInput>(i).keyImage);
                     } else if (i.type() == typeid(MultisignatureInput)) {
@@ -592,7 +612,8 @@ namespace Q1v {
                 }
 
                 // process outputs
-                for (uint16_t o = 0; transaction.tx.outputs.size() > o; ++o) { // NOLINT(bugprone-too-small-loop-variable)
+                for (uint16_t o = 0;
+                     transaction.tx.outputs.size() > o; ++o) { // NOLINT(bugprone-too-small-loop-variable)
                     const auto &out = transaction.tx.outputs[o];
                     if (out.target.type() == typeid(KeyOutput)) {
                         m_outputs[out.amount].push_back(std::make_pair<>(transactionIndex, o));
@@ -807,9 +828,8 @@ namespace Q1v {
         }
 
         // return back original chain
-        for (auto &bl : original_chain) {
-            block_verification_context bvc =
-                    boost::value_initialized<block_verification_context>();
+        for (auto &bl: original_chain) {
+            block_verification_context bvc = boost::value_initialized<block_verification_context>();
             bool r = pushBlock(bl, bvc);
             if (!(r && bvc.m_added_to_main_chain)) {
                 logger(ERROR, BRIGHT_RED) << "PANIC!!! failed to add (again) block while "
@@ -876,7 +896,7 @@ namespace Q1v {
 
         if (!discard_disconnected_chain) {
             //pushing old chain as alternative chain
-            for (auto &old_ch_ent : disconnected_chain) {
+            for (auto &old_ch_ent: disconnected_chain) {
                 block_verification_context bvc = boost::value_initialized<block_verification_context>();
                 bool r = handle_alternative_block(old_ch_ent, get_block_hash(old_ch_ent), bvc, false);
                 if (!r) {
@@ -891,7 +911,7 @@ namespace Q1v {
         blocksFromCommonRoot.push_back(alt_chain.front()->second.bl.previousBlockHash);
 
         //removing all_chain entries from alternative chain
-        for (auto ch_ent : alt_chain) {
+        for (auto ch_ent: alt_chain) {
             blocksFromCommonRoot.push_back(get_block_hash(ch_ent->second.bl));
             m_orthanBlocksIndex.remove(ch_ent->second.bl);
             m_alternative_chains.erase(ch_ent);
@@ -914,7 +934,8 @@ namespace Q1v {
         if (BlockMajorVersion >= BLOCK_MAJOR_VERSION_4) {
             if (alt_chain.size() < m_currency.difficultyBlocksCount4()) {
                 std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
-                size_t main_chain_stop_offset = alt_chain.size() ? alt_chain.front()->second.height : bei.height; // NOLINT(readability-container-size-empty)
+                size_t main_chain_stop_offset = alt_chain.size() ? alt_chain.front()->second.height
+                                                                 : bei.height; // NOLINT(readability-container-size-empty)
                 size_t main_chain_count = m_currency.difficultyBlocksCount4() -
                                           std::min(m_currency.difficultyBlocksCount4(), alt_chain.size());
                 main_chain_count = std::min(main_chain_count, main_chain_stop_offset);
@@ -930,12 +951,12 @@ namespace Q1v {
                 //if (!((alt_chain.size() + timestamps.size()) <= m_currency.difficultyBlocksCount4())) {
                 if ((alt_chain.size() + timestamps.size()) > m_currency.difficultyBlocksCount4()) {
                     logger(ERROR, BRIGHT_RED) << "Internal error, alt_chain.size()[" << alt_chain.size()
-                                              << "] + timestamps.size()[" << timestamps.size() <<
-                                              "] NOT <= m_currency.difficultyBlocksCount()["
+                                              << "] + timestamps.size()[" << timestamps.size()
+                                              << "] NOT <= m_currency.difficultyBlocksCount()["
                                               << m_currency.difficultyBlocksCount4() << ']';
                     return false;
                 }
-                for (auto it : alt_chain) {
+                for (auto it: alt_chain) {
                     timestamps.push_back(it->second.bl.timestamp);
                     commulative_difficulties.push_back(it->second.cumulative_difficulty);
                 }
@@ -957,7 +978,8 @@ namespace Q1v {
         } else if (BlockMajorVersion == BLOCK_MAJOR_VERSION_2 || BlockMajorVersion == BLOCK_MAJOR_VERSION_3) {
             if (alt_chain.size() < m_currency.difficultyBlocksCount2()) {
                 std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
-                size_t main_chain_stop_offset = alt_chain.size() ? alt_chain.front()->second.height : bei.height; // NOLINT(readability-container-size-empty)
+                size_t main_chain_stop_offset = alt_chain.size() ? alt_chain.front()->second.height
+                                                                 : bei.height; // NOLINT(readability-container-size-empty)
                 size_t main_chain_count = m_currency.difficultyBlocksCount2() -
                                           std::min(m_currency.difficultyBlocksCount2(), alt_chain.size());
                 main_chain_count = std::min(main_chain_count, main_chain_stop_offset);
@@ -973,12 +995,12 @@ namespace Q1v {
                 //if (!((alt_chain.size() + timestamps.size()) <= m_currency.difficultyBlocksCount2())) {
                 if ((alt_chain.size() + timestamps.size()) > m_currency.difficultyBlocksCount2()) {
                     logger(ERROR, BRIGHT_RED) << "Internal error, alt_chain.size()[" << alt_chain.size()
-                                              << "] + timestamps.size()[" << timestamps.size() <<
-                                              "] NOT <= m_currency.difficultyBlocksCount()["
+                                              << "] + timestamps.size()[" << timestamps.size()
+                                              << "] NOT <= m_currency.difficultyBlocksCount()["
                                               << m_currency.difficultyBlocksCount2() << ']';
                     return false;
                 }
-                for (auto it : alt_chain) {
+                for (auto it: alt_chain) {
                     timestamps.push_back(it->second.bl.timestamp);
                     commulative_difficulties.push_back(it->second.cumulative_difficulty);
                 }
@@ -1002,7 +1024,8 @@ namespace Q1v {
 
             if (alt_chain.size() < m_currency.difficultyBlocksCount()) {
                 std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
-                size_t main_chain_stop_offset = alt_chain.size() ? alt_chain.front()->second.height : bei.height; // NOLINT(readability-container-size-empty)
+                size_t main_chain_stop_offset = alt_chain.size() ? alt_chain.front()->second.height
+                                                                 : bei.height; // NOLINT(readability-container-size-empty)
                 size_t main_chain_count = m_currency.difficultyBlocksCount() -
                                           std::min(m_currency.difficultyBlocksCount(), alt_chain.size());
                 main_chain_count = std::min(main_chain_count, main_chain_stop_offset);
@@ -1018,12 +1041,12 @@ namespace Q1v {
                 //if (!((alt_chain.size() + timestamps.size()) <= m_currency.difficultyBlocksCount())) {
                 if ((alt_chain.size() + timestamps.size()) > m_currency.difficultyBlocksCount()) {
                     logger(ERROR, BRIGHT_RED) << "Internal error, alt_chain.size()[" << alt_chain.size()
-                                              << "] + timestamps.size()[" << timestamps.size() <<
-                                              "] NOT <= m_currency.difficultyBlocksCount()["
+                                              << "] + timestamps.size()[" << timestamps.size()
+                                              << "] NOT <= m_currency.difficultyBlocksCount()["
                                               << m_currency.difficultyBlocksCount() << ']';
                     return false;
                 }
-                for (auto it : alt_chain) {
+                for (auto it: alt_chain) {
                     timestamps.push_back(it->second.bl.timestamp);
                     commulative_difficulties.push_back(it->second.cumulative_difficulty);
                 }
@@ -1051,29 +1074,26 @@ namespace Q1v {
     bool Blockchain::prevalidate_miner_transaction(const Block &b, uint32_t height) {
 
         if (b.baseTransaction.inputs.size() != 1) {
-            logger(ERROR, BRIGHT_RED)
-                    << "coinbase transaction in the block has no inputs";
+            logger(ERROR, BRIGHT_RED) << "coinbase transaction in the block has no inputs";
             return false;
         }
 
         if (!(b.baseTransaction.inputs[0].type() == typeid(BaseInput))) {
-            logger(ERROR, BRIGHT_RED)
-                    << "coinbase transaction in the block has the wrong type";
+            logger(ERROR, BRIGHT_RED) << "coinbase transaction in the block has the wrong type";
             return false;
         }
 
         if (boost::get<BaseInput>(b.baseTransaction.inputs[0]).blockIndex != height) {
-            logger(INFO, BRIGHT_RED) << "The miner transaction in block has invalid height: " <<
-                                     boost::get<BaseInput>(b.baseTransaction.inputs[0]).blockIndex << ", expected: "
+            logger(INFO, BRIGHT_RED) << "The miner transaction in block has invalid height: "
+                                     << boost::get<BaseInput>(b.baseTransaction.inputs[0]).blockIndex << ", expected: "
                                      << height;
             return false;
         }
 
         if (b.baseTransaction.unlockTime != height + m_currency.minedMoneyUnlockWindow()) {
-            logger(ERROR, BRIGHT_RED)
-                    << "coinbase transaction transaction have wrong unlock time="
-                    << b.baseTransaction.unlockTime << ", expected "
-                    << height + m_currency.minedMoneyUnlockWindow();
+            logger(ERROR, BRIGHT_RED) << "coinbase transaction transaction have wrong unlock time="
+                                      << b.baseTransaction.unlockTime << ", expected "
+                                      << height + m_currency.minedMoneyUnlockWindow();
             return false;
         }
 
@@ -1090,7 +1110,7 @@ namespace Q1v {
                                                 int64_t &emissionChange) {
 
         uint64_t minerReward = 0;
-        for (auto &o : b.baseTransaction.outputs) {
+        for (auto &o: b.baseTransaction.outputs) {
             minerReward += o.amount;
         }
 
@@ -1109,14 +1129,14 @@ namespace Q1v {
         if (minerReward > reward) {
             if (m_currency.isTestnet() || m_blocks.size() > BLOCK_HEIGHT_ALIGNMENT) {
                 logger(ERROR, BRIGHT_RED) << "Coinbase transaction spend too much money: "
-                                          << m_currency.formatAmount(minerReward) <<
-                                          ", block reward is " << m_currency.formatAmount(reward);
+                                          << m_currency.formatAmount(minerReward) << ", block reward is "
+                                          << m_currency.formatAmount(reward);
                 return false;
             }
         } else if (minerReward < reward) {
             if (m_currency.isTestnet() || m_blocks.size() > BLOCK_HEIGHT_ALIGNMENT) {
-                logger(ERROR, BRIGHT_RED) << "Coinbase transaction doesn't use full amount of block reward: spent " <<
-                                          m_currency.formatAmount(minerReward) << ", block reward is "
+                logger(ERROR, BRIGHT_RED) << "Coinbase transaction doesn't use full amount of block reward: spent "
+                                          << m_currency.formatAmount(minerReward) << ", block reward is "
                                           << m_currency.formatAmount(reward);
                 return false;
             }
@@ -1129,9 +1149,8 @@ namespace Q1v {
         std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
         //if (!(from_height < m_blocks.size())) {
         if (from_height >= m_blocks.size()) {
-            logger(ERROR, BRIGHT_RED)
-                    << "Internal error: get_backward_blocks_sizes called with from_height="
-                    << from_height << ", blockchain height = " << m_blocks.size();
+            logger(ERROR, BRIGHT_RED) << "Internal error: get_backward_blocks_sizes called with from_height="
+                                      << from_height << ", blockchain height = " << m_blocks.size();
             return false;
         }
         size_t start_offset = (from_height + 1) - std::min((from_height + 1), count);
@@ -1185,8 +1204,7 @@ namespace Q1v {
 
         auto block_height = get_block_height(b);
         if (block_height == 0) {
-            logger(ERROR, BRIGHT_RED) <<
-                                      "Block with id: " << Common::podToHex(id)
+            logger(ERROR, BRIGHT_RED) << "Block with id: " << Common::podToHex(id)
                                       << " (as alternative) have wrong miner transaction";
             bvc.m_verifivation_failed = true;
             return false;
@@ -1198,9 +1216,9 @@ namespace Q1v {
 #endif
 
         if (!m_checkpoints.is_alternative_block_allowed(getCurrentBlockchainHeight(), block_height)) {
-            logger(TRACE) << "Block with id: " << id << std::endl <<
-                          " can't be accepted for alternative chain, block height: " << block_height << std::endl <<
-                          " blockchain height: " << getCurrentBlockchainHeight();
+            logger(TRACE) << "Block with id: " << id << std::endl
+                          << " can't be accepted for alternative chain, block height: " << block_height << std::endl
+                          << " blockchain height: " << getCurrentBlockchainHeight();
             bvc.m_verifivation_failed = true;
             return false;
         }
@@ -1270,9 +1288,8 @@ namespace Q1v {
 
             //check timestamp correct
             if (!check_block_timestamp(timestamps, b)) {
-                logger(INFO, BRIGHT_RED) <<
-                                         "Block with id: " << id
-                                         << ENDL << " for alternative chain, have invalid timestamp: " << b.timestamp;
+                logger(INFO, BRIGHT_RED) << "Block with id: " << id << ENDL
+                                         << " for alternative chain, have invalid timestamp: " << b.timestamp;
                 //add_block_as_invalid(b, id);//do not add blocks to invalid storage before proof of work check was passed
                 bvc.m_verifivation_failed = true;
                 m_blocks.clear_cache();
@@ -1281,12 +1298,12 @@ namespace Q1v {
 
             BlockEntry bei = boost::value_initialized<BlockEntry>();
             bei.bl = b;
-            bei.height = static_cast<uint32_t>(alt_chain.size() ? it_prev->second.height + 1 : mainPrevHeight + 1); // NOLINT(readability-container-size-empty)
+            bei.height = static_cast<uint32_t>(alt_chain.size() ? it_prev->second.height + 1 : mainPrevHeight +
+                                                                                               1); // NOLINT(readability-container-size-empty)
 
             bool is_a_checkpoint;
             if (!m_checkpoints.check_block(bei.height, id, is_a_checkpoint)) {
-                logger(ERROR, BRIGHT_RED) <<
-                                          "CHECKPOINT VALIDATION FAILED";
+                logger(ERROR, BRIGHT_RED) << "CHECKPOINT VALIDATION FAILED";
                 bvc.m_verifivation_failed = true;
                 m_blocks.clear_cache();
                 return false;
@@ -1301,10 +1318,8 @@ namespace Q1v {
             }
             Crypto::Hash proof_of_work = NULL_HASH;
             if (!m_currency.checkProofOfWork(m_pow_ctx, bei.bl, current_diff, proof_of_work)) {
-                logger(INFO, BRIGHT_RED) <<
-                                         "Block with id: " << id
-                                         << ENDL << " for alternative chain, have not enough proof of work: "
-                                         << proof_of_work
+                logger(INFO, BRIGHT_RED) << "Block with id: " << id << ENDL
+                                         << " for alternative chain, have not enough proof of work: " << proof_of_work
                                          << ENDL << " expected difficulty: " << current_diff;
                 bvc.m_verifivation_failed = true;
                 m_blocks.clear_cache();
@@ -1312,16 +1327,16 @@ namespace Q1v {
             }
 
             if (!prevalidate_miner_transaction(b, bei.height)) {
-                logger(INFO, BRIGHT_RED) <<
-                                         "Block with id: " << Common::podToHex(id)
+                logger(INFO, BRIGHT_RED) << "Block with id: " << Common::podToHex(id)
                                          << " (as alternative) have wrong miner transaction.";
                 bvc.m_verifivation_failed = true;
                 m_blocks.clear_cache();
                 return false;
             }
 
-            bei.cumulative_difficulty = alt_chain.size() ? it_prev->second.cumulative_difficulty // NOLINT(readability-container-size-empty)
-                                                         : m_blocks[mainPrevHeight].cumulative_difficulty;
+            bei.cumulative_difficulty = alt_chain.size()
+                                        ? it_prev->second.cumulative_difficulty // NOLINT(readability-container-size-empty)
+                                        : m_blocks[mainPrevHeight].cumulative_difficulty;
             bei.cumulative_difficulty += current_diff;
 
 #ifdef _DEBUG
@@ -1341,10 +1356,9 @@ namespace Q1v {
 
             if (is_a_checkpoint) {
                 //do reorganize!
-                logger(INFO, BRIGHT_GREEN) <<
-                                           "###### REORGANIZE on height: " << alt_chain.front()->second.height << " of "
-                                           << m_blocks.size() - 1 <<
-                                           ", checkpoint is found in alternative chain on height " << bei.height;
+                logger(INFO, BRIGHT_GREEN) << "###### REORGANIZE on height: " << alt_chain.front()->second.height
+                                           << " of " << m_blocks.size() - 1
+                                           << ", checkpoint is found in alternative chain on height " << bei.height;
                 bool r = switch_to_alternative_blockchain(alt_chain, true);
                 if (r) {
                     bvc.m_added_to_main_chain = true;
@@ -1358,11 +1372,10 @@ namespace Q1v {
                        bei.cumulative_difficulty) //check if difficulty bigger then in main chain
             {
                 //do reorganize!
-                logger(INFO, BRIGHT_GREEN) <<
-                                           "###### REORGANIZE on height: " << alt_chain.front()->second.height << " of "
-                                           << m_blocks.size() - 1 << " with cum_difficulty "
-                                           << m_blocks.back().cumulative_difficulty
-                                           << ENDL << " alternative blockchain size: " << alt_chain.size()
+                logger(INFO, BRIGHT_GREEN) << "###### REORGANIZE on height: " << alt_chain.front()->second.height
+                                           << " of " << m_blocks.size() - 1 << " with cum_difficulty "
+                                           << m_blocks.back().cumulative_difficulty << ENDL
+                                           << " alternative blockchain size: " << alt_chain.size()
                                            << " with cum_difficulty " << bei.cumulative_difficulty;
                 bool r = switch_to_alternative_blockchain(alt_chain, false);
                 if (r) {
@@ -1374,11 +1387,9 @@ namespace Q1v {
                 m_blocks.clear_cache();
                 return r;
             } else {
-                logger(INFO, BRIGHT_BLUE) <<
-                                          "----- BLOCK ADDED AS ALTERNATIVE ON HEIGHT " << bei.height
-                                          << ENDL << "id:\t" << id
-                                          << ENDL << "PoW:\t" << proof_of_work
-                                          << ENDL << "difficulty:\t" << current_diff;
+                logger(INFO, BRIGHT_BLUE) << "----- BLOCK ADDED AS ALTERNATIVE ON HEIGHT " << bei.height << ENDL
+                                          << "id:\t" << id << ENDL << "PoW:\t" << proof_of_work << ENDL
+                                          << "difficulty:\t" << current_diff;
                 if (sendNewAlternativeBlockMessage) {
                     sendMessage(BlockchainMessage(NewAlternativeBlockMessage(id)));
                 }
@@ -1388,8 +1399,7 @@ namespace Q1v {
         } else {
             //block orphaned
             bvc.m_marked_as_orphaned = true;
-            logger(INFO, BRIGHT_RED) <<
-                                     "Block recognized as orphaned and rejected, id = " << id;
+            logger(INFO, BRIGHT_RED) << "Block recognized as orphaned and rejected, id = " << id;
         }
 
         m_blocks.clear_cache();
@@ -1435,7 +1445,7 @@ namespace Q1v {
         rsp.current_blockchain_height = getCurrentBlockchainHeight();
         std::list<Block> blocks;
         getBlocks(arg.blocks, blocks, rsp.missed_ids);
-        for (const auto &bl : blocks) {
+        for (const auto &bl: blocks) {
             std::list<Crypto::Hash> missed_tx_id;
             std::list<Transaction> txs;
             getTransactions(bl.transactionHashes, txs, rsp.missed_ids);
@@ -1450,7 +1460,7 @@ namespace Q1v {
             //pack block
             e.block = asString(toBinaryArray(bl));
             //pack transactions
-            for (Transaction &tx : txs) {
+            for (Transaction &tx: txs) {
                 e.txs.push_back(asString(toBinaryArray(tx)));
             }
         }
@@ -1459,7 +1469,7 @@ namespace Q1v {
         std::list<Transaction> txs;
         getTransactions(arg.txs, txs, rsp.missed_ids);
         //pack aside transactions
-        for (const auto &tx : txs) {
+        for (const auto &tx: txs) {
             rsp.txs.push_back(asString(toBinaryArray(tx)));
         }
 
@@ -1468,7 +1478,7 @@ namespace Q1v {
 
     bool Blockchain::getAlternativeBlocks(std::list<Block> &blocks) {
         std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
-        for (auto &alt_bl : m_alternative_chains) {
+        for (auto &alt_bl: m_alternative_chains) {
             blocks.push_back(alt_bl.second.bl);
         }
 
@@ -1529,14 +1539,14 @@ namespace Q1v {
                                            COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::response &res) {
         std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
 
-        for (uint64_t amount : req.amounts) {
+        for (uint64_t amount: req.amounts) {
             COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::outs_for_amount &result_outs = *res.outs.insert(res.outs.end(),
                                                                                                         COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS::outs_for_amount());
             result_outs.amount = amount;
             auto it = m_outputs.find(amount);
             if (it == m_outputs.end()) {
-                logger(ERROR, BRIGHT_RED) <<
-                                          "COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS: not outs for amount " << amount
+                logger(ERROR, BRIGHT_RED) << "COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS: not outs for amount "
+                                          << amount
                                           << ", wallet should use some real outs when it lookup for some mix, so, at least one out for this amount should exist";
                 continue;//actually this is strange situation, wallet should use some real outs when it lookup for some mix, so, at least one out for this amount should exist
             }
@@ -1588,8 +1598,7 @@ namespace Q1v {
         std::stringstream ss;
         std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
         if (start_index >= m_blocks.size()) {
-            logger(INFO, BRIGHT_WHITE) <<
-                                       "Wrong starter index set: " << start_index << ", expected max index "
+            logger(INFO, BRIGHT_WHITE) << "Wrong starter index set: " << start_index << ", expected max index "
                                        << m_blocks.size() - 1;
             return;
         }
@@ -1597,15 +1606,12 @@ namespace Q1v {
         for (size_t i = start_index; i != m_blocks.size() && i != end_index; i++) {
             ss << "height " << i << ", timestamp " << m_blocks[i].bl.timestamp << ", cumul_dif "
                << m_blocks[i].cumulative_difficulty << ", cumul_size " << m_blocks[i].block_cumulative_size
-               << "\nid\t\t" << get_block_hash(m_blocks[i].bl)
-               << "\ndifficulty\t\t" << blockDifficulty(i) << ", nonce " << m_blocks[i].bl.nonce << ", tx_count "
-               << m_blocks[i].bl.transactionHashes.size() << ENDL;
+               << "\nid\t\t" << get_block_hash(m_blocks[i].bl) << "\ndifficulty\t\t" << blockDifficulty(i) << ", nonce "
+               << m_blocks[i].bl.nonce << ", tx_count " << m_blocks[i].bl.transactionHashes.size() << ENDL;
         }
         m_blocks.clear_cache();
-        logger(DEBUGGING) <<
-                          "Current blockchain:" << ENDL << ss.str();
-        logger(INFO, BRIGHT_WHITE) <<
-                                   "Blockchain printed with log level 1";
+        logger(DEBUGGING) << "Current blockchain:" << ENDL << ss.str();
+        logger(INFO, BRIGHT_WHITE) << "Blockchain printed with log level 1";
     }
 
     void Blockchain::print_blockchain_index() {
@@ -1625,7 +1631,7 @@ namespace Q1v {
     void Blockchain::print_blockchain_outs(const std::string &file) {
         std::stringstream ss;
         std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
-        for (const outputs_container::value_type &v : m_outputs) {
+        for (const outputs_container::value_type &v: m_outputs) {
             const std::vector<std::pair<TransactionIndex, uint16_t>> &vals = v.second;
             if (!vals.empty()) {
                 ss << "amount: " << v.first << ENDL;
@@ -1636,11 +1642,9 @@ namespace Q1v {
         }
 
         if (Common::saveStringToFile(file, ss.str())) {
-            logger(INFO, BRIGHT_WHITE) <<
-                                       "Current outputs index writen to file: " << file;
+            logger(INFO, BRIGHT_WHITE) << "Current outputs index writen to file: " << file;
         } else {
-            logger(WARNING, BRIGHT_YELLOW) <<
-                                           "Failed to write current outputs index to file: " << file;
+            logger(WARNING, BRIGHT_YELLOW) << "Failed to write current outputs index to file: " << file;
         }
     }
 
@@ -1716,7 +1720,6 @@ namespace Q1v {
         return true;
     }
 
-
     bool Blockchain::checkTransactionInputs(const Transaction &tx, uint32_t &max_used_block_height,
                                             Crypto::Hash &max_used_block_id, BlockInfo *tail) {
         std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
@@ -1736,7 +1739,7 @@ namespace Q1v {
     }
 
     bool Blockchain::haveTransactionKeyImagesAsSpent(const Transaction &tx) {
-        for (const auto &in : tx.inputs) { // NOLINT(readability-use-anyofallof)
+        for (const auto &in: tx.inputs) { // NOLINT(readability-use-anyofallof)
             if (in.type() == typeid(KeyInput)) {
                 if (have_tx_keyimg_as_spent(boost::get<KeyInput>(in).keyImage)) {
                     return true;
@@ -1760,7 +1763,7 @@ namespace Q1v {
         }
 
         Crypto::Hash transactionHash = getObjectHash(tx);
-        for (const auto &txin : tx.inputs) {
+        for (const auto &txin: tx.inputs) {
             assert(inputIndex < tx.signatures.size());
             if (txin.type() == typeid(KeyInput)) {
                 const KeyInput &in_to_key = boost::get<KeyInput>(txin);
@@ -1770,29 +1773,25 @@ namespace Q1v {
                 }
 
                 if (have_tx_keyimg_as_spent(in_to_key.keyImage)) {
-                    logger(TRACE) <<
-                                  "Key image already spent in blockchain for transaction " << transactionHash;
+                    logger(TRACE) << "Key image already spent in blockchain for transaction " << transactionHash;
                     //"Key image already spent in blockchain: " << Common::podToHex(in_to_key.keyImage);
                     return false;
                 }
                 if (!check_tx_input(in_to_key, tx_prefix_hash, tx.signatures[inputIndex], pmax_used_block_height)) {
-                    logger(TRACE) <<
-                                  "Failed ring signature validation for transaction " << transactionHash;
+                    logger(TRACE) << "Failed ring signature validation for transaction " << transactionHash;
                     return false;
                 }
                 ++inputIndex;
             } else if (txin.type() == typeid(MultisignatureInput)) {
                 if (!validateInput(::boost::get<MultisignatureInput>(txin), transactionHash, tx_prefix_hash,
                                    tx.signatures[inputIndex])) {
-                    logger(TRACE) <<
-                                  "Failed Multisignature validation for transaction " << transactionHash;
+                    logger(TRACE) << "Failed Multisignature validation for transaction " << transactionHash;
                     return false;
                 }
 
                 ++inputIndex;
             } else {
-                logger(TRACE) <<
-                              "Transaction << " << transactionHash << " contains input of unsupported type.";
+                logger(TRACE) << "Transaction << " << transactionHash << " contains input of unsupported type.";
                 return false;
             }
         }
@@ -1835,15 +1834,13 @@ namespace Q1v {
             bool handle_output(const Transaction &tx, const TransactionOutput &out, size_t transactionOutputIndex) {
                 //check tx unlock time
                 if (!m_bch.is_tx_spendtime_unlocked(tx.unlockTime)) {
-                    logger(INFO, BRIGHT_WHITE) <<
-                                               "One of outputs for one of inputs have wrong tx.unlockTime = "
+                    logger(INFO, BRIGHT_WHITE) << "One of outputs for one of inputs have wrong tx.unlockTime = "
                                                << tx.unlockTime;
                     return false;
                 }
 
                 if (out.target.type() != typeid(KeyOutput)) {
-                    logger(INFO, BRIGHT_WHITE) <<
-                                               "Output have wrong type id, which=" << out.target.which();
+                    logger(INFO, BRIGHT_WHITE) << "Output have wrong type id, which=" << out.target.which();
                     return false;
                 }
 
@@ -1853,8 +1850,12 @@ namespace Q1v {
         };
 
         // additional key_image check, fix discovered by Monero Lab and suggested by "fluffypony" (bitcointalk.org)
-        static const Crypto::KeyImage I = {{0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
-        static const Crypto::KeyImage L = {{0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10}};
+        static const Crypto::KeyImage I = {
+                {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}};
+        static const Crypto::KeyImage L = {
+                {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0x00,
+                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10}};
         if (!(scalarmultKey(txin.keyImage, L) == I)) {
             logger(ERROR) << "Transaction uses key image not in the valid domain";
             m_blocks.clear_cache();
@@ -1865,17 +1866,15 @@ namespace Q1v {
         std::vector<const Crypto::PublicKey *> output_keys;
         outputs_visitor vi(output_keys, *this, logger.getLogger());
         if (!scanOutputKeysForIndexes(txin, vi, pmax_related_block_height)) {
-            logger(INFO, BRIGHT_WHITE) <<
-                                       "Failed to get output keys for tx with amount = "
-                                       << m_currency.formatAmount(txin.amount) <<
-                                       " and count indexes " << txin.outputIndexes.size();
+            logger(INFO, BRIGHT_WHITE) << "Failed to get output keys for tx with amount = "
+                                       << m_currency.formatAmount(txin.amount) << " and count indexes "
+                                       << txin.outputIndexes.size();
             m_blocks.clear_cache();
             return false;
         }
 
         if (txin.outputIndexes.size() != output_keys.size()) {
-            logger(INFO, BRIGHT_WHITE) <<
-                                       "Output keys for tx with amount = " << txin.amount << " and count indexes "
+            logger(INFO, BRIGHT_WHITE) << "Output keys for tx with amount = " << txin.amount << " and count indexes "
                                        << txin.outputIndexes.size() << " returned wrong keys count "
                                        << output_keys.size();
             m_blocks.clear_cache();
@@ -1911,8 +1910,7 @@ namespace Q1v {
                 b.majorVersion < BLOCK_MAJOR_VERSION_5 ? m_currency.timestampCheckWindow()
                                                        : m_currency.timestampCheckWindowV5();
         if (b.timestamp > get_adjusted_time() + futureTimestampLimit) {
-            logger(INFO, BRIGHT_WHITE) <<
-                                       "Timestamp of block with id: " << get_block_hash(b) << ", " << b.timestamp
+            logger(INFO, BRIGHT_WHITE) << "Timestamp of block with id: " << get_block_hash(b) << ", " << b.timestamp
                                        << ", bigger than adjusted time plus future time limit";
             return false;
         }
@@ -1940,10 +1938,9 @@ namespace Q1v {
         uint64_t median_ts = Common::medianValue(timestamps);
 
         if (b.timestamp < median_ts) {
-            logger(INFO, BRIGHT_WHITE) <<
-                                       "Timestamp of block with id: " << get_block_hash(b) << ", " << b.timestamp <<
-                                       ", less than median of last " << blockchain_timestamp_check_window << " blocks, "
-                                       << median_ts;
+            logger(INFO, BRIGHT_WHITE) << "Timestamp of block with id: " << get_block_hash(b) << ", " << b.timestamp
+                                       << ", less than median of last " << blockchain_timestamp_check_window
+                                       << " blocks, " << median_ts;
             return false;
         }
 
@@ -1955,16 +1952,15 @@ namespace Q1v {
         const uint8_t expectedBlockVersion = getBlockMajorVersionForHeight(height);
         if (b.majorVersion != expectedBlockVersion) {
             logger(TRACE) << "Block " << blockHash << " has wrong major version: " << static_cast<int>(b.majorVersion)
-                          <<
-                          ", at height " << height << " expected version is " << static_cast<int>(expectedBlockVersion);
+                          << ", at height " << height << " expected version is "
+                          << static_cast<int>(expectedBlockVersion);
             return false;
         }
 
         if (b.majorVersion == BLOCK_MAJOR_VERSION_2 && b.parentBlock.majorVersion > BLOCK_MAJOR_VERSION_1) {
             logger(ERROR, BRIGHT_RED) << "Parent block of block " << blockHash << " has wrong major version: "
-                                      << static_cast<int>(b.parentBlock.majorVersion) <<
-                                      ", at height " << height << " expected version is "
-                                      << static_cast<int>(BLOCK_MAJOR_VERSION_1);
+                                      << static_cast<int>(b.parentBlock.majorVersion) << ", at height " << height
+                                      << " expected version is " << static_cast<int>(BLOCK_MAJOR_VERSION_1);
             return false;
         }
 
@@ -1976,16 +1972,14 @@ namespace Q1v {
             auto serializer = makeParentBlockSerializer(b, false, false);
             size_t parentBlockSize;
             if (!getObjectBinarySize(serializer, parentBlockSize)) {
-                logger(ERROR, BRIGHT_RED) <<
-                                          "Block " << blockHash << ": failed to determine parent block size";
+                logger(ERROR, BRIGHT_RED) << "Block " << blockHash << ": failed to determine parent block size";
                 return false;
             }
 
             if (parentBlockSize > 2 * 1024) {
-                logger(INFO, BRIGHT_WHITE) <<
-                                           "Block " << blockHash << " contains too big parent block: "
-                                           << parentBlockSize <<
-                                           " bytes, expected no more than " << 2 * 1024 << " bytes";
+                logger(INFO, BRIGHT_WHITE) << "Block " << blockHash << " contains too big parent block: "
+                                           << parentBlockSize << " bytes, expected no more than " << 2 * 1024
+                                           << " bytes";
                 return false;
             }
         }
@@ -1997,9 +1991,8 @@ namespace Q1v {
     Blockchain::checkCumulativeBlockSize(const Crypto::Hash &blockId, size_t cumulativeBlockSize, uint64_t height) {
         size_t maxBlockCumulativeSize = m_currency.maxBlockCumulativeSize(height);
         if (cumulativeBlockSize > maxBlockCumulativeSize) {
-            logger(INFO, BRIGHT_WHITE) <<
-                                       "Block " << blockId << " is too big: " << cumulativeBlockSize << " bytes, " <<
-                                       "expected no more than " << maxBlockCumulativeSize << " bytes";
+            logger(INFO, BRIGHT_WHITE) << "Block " << blockId << " is too big: " << cumulativeBlockSize << " bytes, "
+                                       << "expected no more than " << maxBlockCumulativeSize << " bytes";
             return false;
         }
 
@@ -2013,7 +2006,7 @@ namespace Q1v {
         getTransactions(block.transactionHashes, blockTxs, missedTxs, true);
 
         cumulativeSize = getObjectBinarySize(block.baseTransaction);
-        for (const Transaction &tx : blockTxs) {
+        for (const Transaction &tx: blockTxs) {
             cumulativeSize += getObjectBinarySize(tx);
         }
 
@@ -2043,8 +2036,7 @@ namespace Q1v {
         Block bl = bl_;
         Crypto::Hash id{};
         if (!get_block_hash(bl, id)) {
-            logger(ERROR, BRIGHT_RED) <<
-                                      "Failed to get block hash, possible block has invalid format";
+            logger(ERROR, BRIGHT_RED) << "Failed to get block hash, possible block has invalid format";
             bvc.m_verifivation_failed = true;
             return false;
         }
@@ -2114,8 +2106,7 @@ namespace Q1v {
         }
 
         if (blockData.previousBlockHash != getTailId()) {
-            logger(INFO, BRIGHT_WHITE) <<
-                                       "Block " << blockHash << " has wrong previousBlockHash: "
+            logger(INFO, BRIGHT_WHITE) << "Block " << blockHash << " has wrong previousBlockHash: "
                                        << blockData.previousBlockHash << ", expected: " << getTailId();
             bvc.m_verifivation_failed = true;
             return false;
@@ -2138,6 +2129,7 @@ namespace Q1v {
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
+
     bool Blockchain::pushBlockInCheckpointZone(const Block &blockData, const std::vector<Transaction> &transactions,
                                                block_verification_context &bvc) {
         std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
@@ -2219,6 +2211,7 @@ namespace Q1v {
         update_next_comulative_size_limit();
         return true;
     }
+
 #pragma clang diagnostic pop
 
     bool Blockchain::pushBlockFullCheck(const Block &blockData, const std::vector<Transaction> &transactions,
@@ -2229,8 +2222,7 @@ namespace Q1v {
 
         Crypto::Hash blockHash = get_block_hash(blockData);
         if (m_blockIndex.hasBlock(blockHash)) {
-            logger(ERROR, BRIGHT_RED) <<
-                                      "Block " << blockHash << " already exists in blockchain.";
+            logger(ERROR, BRIGHT_RED) << "Block " << blockHash << " already exists in blockchain.";
             bvc.m_verifivation_failed = true;
             return false;
         }
@@ -2243,15 +2235,13 @@ namespace Q1v {
             return false;
         }
         if (blockData.previousBlockHash != getTailId()) {
-            logger(INFO, BRIGHT_WHITE) <<
-                                       "Block " << blockHash << " has wrong previousBlockHash: "
+            logger(INFO, BRIGHT_WHITE) << "Block " << blockHash << " has wrong previousBlockHash: "
                                        << blockData.previousBlockHash << ", expected: " << getTailId();
             bvc.m_verifivation_failed = true;
             return false;
         }
         if (!check_block_timestamp_main(blockData)) {
-            logger(INFO, BRIGHT_WHITE) <<
-                                       "Block " << blockHash << " has invalid timestamp: " << blockData.timestamp;
+            logger(INFO, BRIGHT_WHITE) << "Block " << blockHash << " has invalid timestamp: " << blockData.timestamp;
             bvc.m_verifivation_failed = true;
             return false;
         }
@@ -2278,8 +2268,7 @@ namespace Q1v {
         if (!m_is_in_checkpoint_zone) {
             if (!m_currency.checkProofOfWork(m_pow_ctx, blockData, currentDifficulty, proof_of_work)) {
                 if (m_blocks.size() > BLOCK_HEIGHT_ALIGNMENT) {
-                    logger(INFO, BRIGHT_WHITE) <<
-                                               "Block " << blockHash << ", has too weak proof of work: "
+                    logger(INFO, BRIGHT_WHITE) << "Block " << blockHash << ", has too weak proof of work: "
                                                << proof_of_work << ", expected difficulty: " << currentDifficulty;
                     bvc.m_verifivation_failed = true;
                     return false;
@@ -2291,8 +2280,7 @@ namespace Q1v {
                 std::chrono::steady_clock::now() - longhashTimeStart).count();
 
         if (!prevalidate_miner_transaction(blockData, static_cast<uint32_t>(m_blocks.size()))) {
-            logger(INFO, BRIGHT_WHITE) <<
-                                       "Block " << blockHash << " failed to pass prevalidation";
+            logger(INFO, BRIGHT_WHITE) << "Block " << blockHash << " failed to pass prevalidation";
             bvc.m_verifivation_failed = true;
             return false;
         }
@@ -2318,9 +2306,8 @@ namespace Q1v {
             blob_size = toBinaryArray(block.transactions.back().tx).size();
             fee = getInputAmount(block.transactions.back().tx) - getOutputAmount(block.transactions.back().tx);
             if (!checkTransactionInputs(block.transactions.back().tx)) {
-                logger(INFO, BRIGHT_WHITE) <<
-                                           "Block " << blockHash << " has at least one transaction with wrong inputs: "
-                                           << tx_id;
+                logger(INFO, BRIGHT_WHITE) << "Block " << blockHash
+                                           << " has at least one transaction with wrong inputs: " << tx_id;
                 bvc.m_verifivation_failed = true;
 
                 block.transactions.pop_back();
@@ -2368,13 +2355,10 @@ namespace Q1v {
 
         //logger(INFO) <<
         //  "+++++ BLOCK SUCCESSFULLY ADDED at " << "Height: " << block.height << ", Hash: " << blockHash;
-        logger(TRACE) <<
-                      "PoW: " << proof_of_work << ", difficulty: " << currentDifficulty
-                      << ENDL << "block reward: " << m_currency.formatAmount(reward) << ", fee: "
-                      << m_currency.formatAmount(fee_summary)
+        logger(TRACE) << "PoW: " << proof_of_work << ", difficulty: " << currentDifficulty << ENDL << "block reward: "
+                      << m_currency.formatAmount(reward) << ", fee: " << m_currency.formatAmount(fee_summary)
                       << ", coinbase_blob_size: " << coinbase_blob_size << ", cumulative size: "
-                      << cumulative_block_size
-                      << ", " << block_processing_time << "(" << target_calculating_time << "/"
+                      << cumulative_block_size << ", " << block_processing_time << "(" << target_calculating_time << "/"
                       << longhash_calculating_time << ")ms";
 
         bvc.m_added_to_main_chain = true;
@@ -2404,8 +2388,7 @@ namespace Q1v {
 
     void Blockchain::popBlock() {
         if (m_blocks.empty()) {
-            logger(ERROR, BRIGHT_RED) <<
-                                      "Attempt to pop block from empty blockchain.";
+            logger(ERROR, BRIGHT_RED) << "Attempt to pop block from empty blockchain.";
             return;
         }
 
@@ -2428,16 +2411,14 @@ namespace Q1v {
                                      TransactionIndex transactionIndex) {
         auto result = m_transactionMap.insert(std::make_pair(transactionHash, transactionIndex));
         if (!result.second) {
-            logger(ERROR, BRIGHT_RED) <<
-                                      "Duplicate transaction was pushed to blockchain.";
+            logger(ERROR, BRIGHT_RED) << "Duplicate transaction was pushed to blockchain.";
             return false;
         }
 
         TransactionEntry &transaction = block.transactions[transactionIndex.transaction];
 
         if (!checkMultisignatureInputsDiff(transaction.tx)) {
-            logger(ERROR, BRIGHT_RED) <<
-                                      "Double spending transaction was pushed to blockchain.";
+            logger(ERROR, BRIGHT_RED) << "Double spending transaction was pushed to blockchain.";
             m_transactionMap.erase(transactionHash);
             return false;
         }
@@ -2446,8 +2427,7 @@ namespace Q1v {
             if (transaction.tx.inputs[i].type() == typeid(KeyInput)) {
                 auto result_ = m_spent_keys.insert(::boost::get<KeyInput>(transaction.tx.inputs[i]).keyImage);
                 if (!result_.second) {
-                    logger(ERROR, BRIGHT_RED) <<
-                                              "Double spending transaction was pushed to blockchain.";
+                    logger(ERROR, BRIGHT_RED) << "Double spending transaction was pushed to blockchain.";
                     for (size_t j = 0; j < i; ++j) {
                         m_spent_keys.erase(::boost::get<KeyInput>(transaction.tx.inputs[i - 1 - j]).keyImage);
                     }
@@ -2458,7 +2438,7 @@ namespace Q1v {
             }
         }
 
-        for (const auto &inv : transaction.tx.inputs) {
+        for (const auto &inv: transaction.tx.inputs) {
             if (inv.type() == typeid(MultisignatureInput)) {
                 const MultisignatureInput &in = ::boost::get<MultisignatureInput>(inv);
                 auto &amountOutputs = m_multisignatureOutputs[in.amount];
@@ -2467,7 +2447,8 @@ namespace Q1v {
         }
 
         transaction.m_global_output_indexes.resize(transaction.tx.outputs.size());
-        for (uint16_t output = 0; transaction.tx.outputs.size() > output; ++output) { // NOLINT(bugprone-too-small-loop-variable)
+        for (uint16_t output = 0;
+             transaction.tx.outputs.size() > output; ++output) { // NOLINT(bugprone-too-small-loop-variable)
             if (transaction.tx.outputs[output].target.type() == typeid(KeyOutput)) {
                 auto &amountOutputs = m_outputs[transaction.tx.outputs[output].amount];
                 transaction.m_global_output_indexes[output] = static_cast<uint32_t>(amountOutputs.size());
@@ -2492,27 +2473,25 @@ namespace Q1v {
             if (output.target.type() == typeid(KeyOutput)) {
                 auto amountOutputs = m_outputs.find(output.amount);
                 if (amountOutputs == m_outputs.end()) {
-                    logger(ERROR, BRIGHT_RED) <<
-                                              "Blockchain consistency broken - cannot find specific amount in outputs map.";
+                    logger(ERROR, BRIGHT_RED)
+                            << "Blockchain consistency broken - cannot find specific amount in outputs map.";
                     continue;
                 }
 
                 if (amountOutputs->second.empty()) {
-                    logger(ERROR, BRIGHT_RED) <<
-                                              "Blockchain consistency broken - output array for specific amount is empty.";
+                    logger(ERROR, BRIGHT_RED)
+                            << "Blockchain consistency broken - output array for specific amount is empty.";
                     continue;
                 }
 
                 if (amountOutputs->second.back().first.block != transactionIndex.block ||
                     amountOutputs->second.back().first.transaction != transactionIndex.transaction) {
-                    logger(ERROR, BRIGHT_RED) <<
-                                              "Blockchain consistency broken - invalid transaction index.";
+                    logger(ERROR, BRIGHT_RED) << "Blockchain consistency broken - invalid transaction index.";
                     continue;
                 }
 
                 if (amountOutputs->second.back().second != transaction.outputs.size() - 1 - outputIndex) {
-                    logger(ERROR, BRIGHT_RED) <<
-                                              "Blockchain consistency broken - invalid output index.";
+                    logger(ERROR, BRIGHT_RED) << "Blockchain consistency broken - invalid output index.";
                     continue;
                 }
 
@@ -2523,33 +2502,30 @@ namespace Q1v {
             } else if (output.target.type() == typeid(MultisignatureOutput)) {
                 auto amountOutputs = m_multisignatureOutputs.find(output.amount);
                 if (amountOutputs == m_multisignatureOutputs.end()) {
-                    logger(ERROR, BRIGHT_RED) <<
-                                              "Blockchain consistency broken - cannot find specific amount in outputs map.";
+                    logger(ERROR, BRIGHT_RED)
+                            << "Blockchain consistency broken - cannot find specific amount in outputs map.";
                     continue;
                 }
 
                 if (amountOutputs->second.empty()) {
-                    logger(ERROR, BRIGHT_RED) <<
-                                              "Blockchain consistency broken - output array for specific amount is empty.";
+                    logger(ERROR, BRIGHT_RED)
+                            << "Blockchain consistency broken - output array for specific amount is empty.";
                     continue;
                 }
 
                 if (amountOutputs->second.back().isUsed) {
-                    logger(ERROR, BRIGHT_RED) <<
-                                              "Blockchain consistency broken - attempting to remove used output.";
+                    logger(ERROR, BRIGHT_RED) << "Blockchain consistency broken - attempting to remove used output.";
                     continue;
                 }
 
                 if (amountOutputs->second.back().transactionIndex.block != transactionIndex.block ||
                     amountOutputs->second.back().transactionIndex.transaction != transactionIndex.transaction) {
-                    logger(ERROR, BRIGHT_RED) <<
-                                              "Blockchain consistency broken - invalid transaction index.";
+                    logger(ERROR, BRIGHT_RED) << "Blockchain consistency broken - invalid transaction index.";
                     continue;
                 }
 
                 if (amountOutputs->second.back().outputIndex != transaction.outputs.size() - 1 - outputIndex) {
-                    logger(ERROR, BRIGHT_RED) <<
-                                              "Blockchain consistency broken - invalid output index.";
+                    logger(ERROR, BRIGHT_RED) << "Blockchain consistency broken - invalid output index.";
                     continue;
                 }
 
@@ -2560,19 +2536,18 @@ namespace Q1v {
             }
         }
 
-        for (auto &input : transaction.inputs) {
+        for (auto &input: transaction.inputs) {
             if (input.type() == typeid(KeyInput)) {
                 size_t count = m_spent_keys.erase(::boost::get<KeyInput>(input).keyImage);
                 if (count != 1) {
-                    logger(ERROR, BRIGHT_RED) <<
-                                              "Blockchain consistency broken - cannot find spent key.";
+                    logger(ERROR, BRIGHT_RED) << "Blockchain consistency broken - cannot find spent key.";
                 }
             } else if (input.type() == typeid(MultisignatureInput)) {
                 const MultisignatureInput &in = ::boost::get<MultisignatureInput>(input);
                 auto &amountOutputs = m_multisignatureOutputs[in.amount];
                 if (!amountOutputs[in.outputIndex].isUsed) {
-                    logger(ERROR, BRIGHT_RED) <<
-                                              "Blockchain consistency broken - multisignature output not marked as used.";
+                    logger(ERROR, BRIGHT_RED)
+                            << "Blockchain consistency broken - multisignature output not marked as used.";
                 }
 
                 amountOutputs[in.outputIndex].isUsed = false;
@@ -2583,8 +2558,7 @@ namespace Q1v {
 
         size_t count = m_transactionMap.erase(transactionHash);
         if (count != 1) {
-            logger(ERROR, BRIGHT_RED) <<
-                                      "Blockchain consistency broken - cannot find transaction by hash.";
+            logger(ERROR, BRIGHT_RED) << "Blockchain consistency broken - cannot find transaction by hash.";
         }
     }
 
@@ -2603,30 +2577,27 @@ namespace Q1v {
         assert(input.signatureCount == transactionSignatures.size());
         MultisignatureOutputsContainer::const_iterator amountOutputs = m_multisignatureOutputs.find(input.amount);
         if (amountOutputs == m_multisignatureOutputs.end()) {
-            logger(DEBUGGING) <<
-                              "Transaction << " << transactionHash
+            logger(DEBUGGING) << "Transaction << " << transactionHash
                               << " contains multisignature input with invalid amount.";
             return false;
         }
 
         if (input.outputIndex >= amountOutputs->second.size()) {
-            logger(DEBUGGING) <<
-                              "Transaction << " << transactionHash
+            logger(DEBUGGING) << "Transaction << " << transactionHash
                               << " contains multisignature input with invalid outputIndex.";
             return false;
         }
 
         const MultisignatureOutputUsage &outputIndex = amountOutputs->second[input.outputIndex];
         if (outputIndex.isUsed) {
-            logger(DEBUGGING) <<
-                              "Transaction << " << transactionHash << " contains double spending multisignature input.";
+            logger(DEBUGGING) << "Transaction << " << transactionHash
+                              << " contains double spending multisignature input.";
             return false;
         }
 
         const Transaction &outputTransaction = m_blocks[outputIndex.transactionIndex.block].transactions[outputIndex.transactionIndex.transaction].tx;
         if (!is_tx_spendtime_unlocked(outputTransaction.unlockTime)) {
-            logger(DEBUGGING) <<
-                              "Transaction << " << transactionHash
+            logger(DEBUGGING) << "Transaction << " << transactionHash
                               << " contains multisignature input which points to a locked transaction.";
             return false;
         }
@@ -2636,8 +2607,7 @@ namespace Q1v {
         const MultisignatureOutput &output = ::boost::get<MultisignatureOutput>(
                 outputTransaction.outputs[outputIndex.outputIndex].target);
         if (input.signatureCount != output.requiredSignatureCount) {
-            logger(DEBUGGING) <<
-                              "Transaction << " << transactionHash
+            logger(DEBUGGING) << "Transaction << " << transactionHash
                               << " contains multisignature input with invalid signature count.";
             return false;
         }
@@ -2646,8 +2616,7 @@ namespace Q1v {
         size_t outputKeyIndex = 0;
         while (inputSignatureIndex < input.signatureCount) {
             if (outputKeyIndex == output.keys.size()) {
-                logger(DEBUGGING) <<
-                                  "Transaction << " << transactionHash
+                logger(DEBUGGING) << "Transaction << " << transactionHash
                                   << " contains multisignature input with invalid signatures.";
                 return false;
             }
@@ -2665,7 +2634,7 @@ namespace Q1v {
 
     bool Blockchain::checkCheckpoints(uint64_t &lastValidCheckpointHeight) {
         std::vector<uint64_t> checkpointHeights = m_checkpoints.getCheckpointHeights();
-        for (const auto &checkpointHeight : checkpointHeights) {
+        for (const auto &checkpointHeight: checkpointHeights) {
             if (m_blocks.size() <= checkpointHeight) {
                 return true;
             }
@@ -2688,8 +2657,7 @@ namespace Q1v {
 
     void Blockchain::removeLastBlock() {
         if (m_blocks.empty()) {
-            logger(ERROR, BRIGHT_RED) <<
-                                      "Attempt to pop block from empty blockchain.";
+            logger(ERROR, BRIGHT_RED) << "Attempt to pop block from empty blockchain.";
             return;
         }
 
@@ -2729,7 +2697,8 @@ namespace Q1v {
             futureTimestampLimit = m_currency.blockFutureTimeLimit();
         }
 
-        auto bound = std::lower_bound(m_blocks.begin() + startOffset, m_blocks.end(), timestamp - futureTimestampLimit, // NOLINT(cppcoreguidelines-narrowing-conversions)
+        auto bound = std::lower_bound(m_blocks.begin() + startOffset, m_blocks.end(), timestamp -
+                                                                                      futureTimestampLimit, // NOLINT(cppcoreguidelines-narrowing-conversions)
                                       [](const BlockEntry &b, uint64_t timestamp) {
                                           return b.bl.timestamp < timestamp;
                                       });
@@ -2859,7 +2828,8 @@ namespace Q1v {
                 const BlockEntry &block = m_blocks[b];
                 m_timestampIndex.add(block.bl.timestamp, get_block_hash(block.bl));
                 m_generatedTransactionsIndex.add(block.bl);
-                for (uint16_t t = 0; block.transactions.size() > t; ++t) { // NOLINT(modernize-loop-convert,bugprone-too-small-loop-variable)
+                for (uint16_t t = 0; block.transactions.size() >
+                                     t; ++t) { // NOLINT(modernize-loop-convert,bugprone-too-small-loop-variable)
                     const TransactionEntry &transaction = block.transactions[t];
                     m_paymentIdIndex.add(transaction.tx);
                 }

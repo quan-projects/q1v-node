@@ -9,17 +9,19 @@
 
 namespace System {
 
-class Dispatcher;
-class Event;
+    class Dispatcher;
 
-class RemoteEventLock {
-public:
-  RemoteEventLock(Dispatcher& dispatcher, Event& event);
-  ~RemoteEventLock();
+    class Event;
 
-private:
-  Dispatcher& dispatcher;
-  Event& event;
-};
+    class RemoteEventLock {
+    public:
+        RemoteEventLock(Dispatcher &dispatcher, Event &event);
+
+        ~RemoteEventLock();
+
+    private:
+        Dispatcher &dispatcher;
+        Event &event;
+    };
 
 }

@@ -11,18 +11,19 @@
 
 namespace Q1v {
 
-class RpcServerConfig {
-public:
+    class RpcServerConfig {
+    public:
 
-  RpcServerConfig();
+        RpcServerConfig();
 
-  static void initOptions(boost::program_options::options_description& desc);
-  void init(const boost::program_options::variables_map& options);
+        static void initOptions(boost::program_options::options_description &desc);
 
-  std::string getBindAddress() const;
+        void init(const boost::program_options::variables_map &options);
 
-  std::string bindIp;
-  uint16_t bindPort;
-};
+        std::string getBindAddress() const;
+
+        std::string bindIp;
+        uint16_t bindPort;
+    };
 
 }

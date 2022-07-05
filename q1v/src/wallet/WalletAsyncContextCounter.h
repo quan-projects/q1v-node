@@ -13,21 +13,21 @@
 
 namespace Q1v {
 
-class WalletAsyncContextCounter
-{
-public:
-  WalletAsyncContextCounter() : m_asyncContexts(0) {}
+    class WalletAsyncContextCounter {
+    public:
+        WalletAsyncContextCounter() : m_asyncContexts(0) {}
 
-  void addAsyncContext();
-  void delAsyncContext();
+        void addAsyncContext();
 
-  //returns true if contexts are finished before timeout
-  void waitAsyncContextsFinish();
+        void delAsyncContext();
 
-private:
-  uint32_t m_asyncContexts;
-  std::condition_variable m_cv;
-  std::mutex m_mutex;
-};
+        //returns true if contexts are finished before timeout
+        void waitAsyncContextsFinish();
+
+    private:
+        uint32_t m_asyncContexts;
+        std::condition_variable m_cv;
+        std::mutex m_mutex;
+    };
 
 } //namespace Q1v

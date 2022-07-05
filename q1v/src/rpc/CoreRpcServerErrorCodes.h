@@ -5,8 +5,7 @@
  * Full source's copyright information can be found in the "/full_copyright/bytecoin_copyright.txt"
 */
 
-#pragma  once 
-
+#pragma  once
 
 #define CORE_RPC_ERROR_CODE_WRONG_PARAM           -1
 #define CORE_RPC_ERROR_CODE_TOO_BIG_HEIGHT        -2

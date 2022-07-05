@@ -12,8 +12,7 @@
 
 #include "crypto/hash.h"
 
-namespace Q1v
-{
+namespace Q1v {
     typedef std::uint64_t difficulty_type;
 
     bool check_hash(const Crypto::Hash &hash, difficulty_type difficulty);

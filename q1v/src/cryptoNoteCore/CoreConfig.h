@@ -13,15 +13,16 @@
 
 namespace Q1v {
 
-class CoreConfig {
-public:
-  CoreConfig();
+    class CoreConfig {
+    public:
+        CoreConfig();
 
-  static void initOptions(boost::program_options::options_description& desc);
-  void init(const boost::program_options::variables_map& options);
+        static void initOptions(boost::program_options::options_description &desc);
 
-  std::string configFolder;
-  bool configFolderDefaulted = true;
-};
+        void init(const boost::program_options::variables_map &options);
+
+        std::string configFolder;
+        bool configFolderDefaulted = true;
+    };
 
 } //namespace Q1v

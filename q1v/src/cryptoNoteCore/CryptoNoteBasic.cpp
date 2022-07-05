@@ -10,10 +10,10 @@
 
 namespace Q1v {
 
-KeyPair generateKeyPair() {
-  KeyPair k;
-  Crypto::generate_keys(k.publicKey, k.secretKey);
-  return k;
-}
+    KeyPair generateKeyPair() {
+        KeyPair k;
+        Crypto::generate_keys(k.publicKey, k.secretKey);
+        return k;
+    }
 
 }

@@ -8,6 +8,6 @@
 #include "IBlock.h"
 
 namespace Q1v {
-IBlock::~IBlock() {
-}
+    IBlock::~IBlock() {
+    }
 }

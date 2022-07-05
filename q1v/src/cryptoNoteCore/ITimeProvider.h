@@ -11,15 +11,16 @@
 
 namespace Q1v {
 
-  struct ITimeProvider {
-    virtual time_t now() = 0;
-    virtual ~ITimeProvider() {}
-  };
+    struct ITimeProvider {
+        virtual time_t now() = 0;
 
-  struct RealTimeProvider : public ITimeProvider {
-    virtual time_t now() override {
-      return time(nullptr);
-    }
-  };
+        virtual ~ITimeProvider() {}
+    };
+
+    struct RealTimeProvider : public ITimeProvider {
+        virtual time_t now() override {
+            return time(nullptr);
+        }
+    };
 
 }

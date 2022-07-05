@@ -36,7 +36,7 @@ namespace Q1v {
     }
 
     bool BlockIndex::findSupplement(const std::vector<Crypto::Hash> &ids, uint32_t &offset) const {
-        for (const auto &id : ids) {
+        for (const auto &id: ids) {
             if (getBlockHeight(id, offset)) {
                 return true;
             }

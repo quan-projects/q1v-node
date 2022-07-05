@@ -12,69 +12,72 @@
 
 namespace Q1v {
 
-  class TransactionExtra {
-  public:
-    TransactionExtra() {}
-    TransactionExtra(const std::vector<uint8_t>& extra) {
-      parse(extra);        
-    }
+    class TransactionExtra {
+    public:
+        TransactionExtra() {}
 
-    bool parse(const std::vector<uint8_t>& extra) {
-      fields.clear();
-      return Q1v::parseTransactionExtra(extra, fields);
-    }
+        TransactionExtra(const std::vector<uint8_t> &extra) {
+            parse(extra);
+        }
 
-    template <typename T>
-    bool get(T& value) const {
-      auto it = find(typeid(T));
-      if (it == fields.end()) {
-        return false;
-      }
-      value = boost::get<T>(*it);
-      return true;
-    }
+        bool parse(const std::vector<uint8_t> &extra) {
+            fields.clear();
+            return Q1v::parseTransactionExtra(extra, fields);
+        }
 
-    template <typename T>
-    void set(const T& value) {
-      auto it = find(typeid(T));
-      if (it != fields.end()) {
-        *it = value;
-      } else {
-        fields.push_back(value);
-      }
-    }
+        template<typename T>
+        bool get(T &value) const {
+            auto it = find(typeid(T));
+            if (it == fields.end()) {
+                return false;
+            }
+            value = boost::get<T>(*it);
+            return true;
+        }
 
-    template <typename T>
-    void append(const T& value) {
-      fields.push_back(value);
-    }
+        template<typename T>
+        void set(const T &value) {
+            auto it = find(typeid(T));
+            if (it != fields.end()) {
+                *it = value;
+            } else {
+                fields.push_back(value);
+            }
+        }
 
-    bool getPublicKey(Crypto::PublicKey& pk) const {
-      Q1v::TransactionExtraPublicKey extraPk;
-      if (!get(extraPk)) {
-        return false;
-      }
-      pk = extraPk.publicKey;
-      return true;
-    }
+        template<typename T>
+        void append(const T &value) {
+            fields.push_back(value);
+        }
 
-    std::vector<uint8_t> serialize() const {
-      std::vector<uint8_t> extra;
-      writeTransactionExtra(extra, fields);
-      return extra;
-    }
+        bool getPublicKey(Crypto::PublicKey &pk) const {
+            Q1v::TransactionExtraPublicKey extraPk;
+            if (!get(extraPk)) {
+                return false;
+            }
+            pk = extraPk.publicKey;
+            return true;
+        }
 
-  private:
+        std::vector<uint8_t> serialize() const {
+            std::vector<uint8_t> extra;
+            writeTransactionExtra(extra, fields);
+            return extra;
+        }
 
-    std::vector<Q1v::TransactionExtraField>::const_iterator find(const std::type_info& t) const {
-      return std::find_if(fields.begin(), fields.end(), [&t](const Q1v::TransactionExtraField& f) { return t == f.type(); });
-    }
+    private:
 
-    std::vector<Q1v::TransactionExtraField>::iterator find(const std::type_info& t) {
-      return std::find_if(fields.begin(), fields.end(), [&t](const Q1v::TransactionExtraField& f) { return t == f.type(); });
-    }
+        std::vector<Q1v::TransactionExtraField>::const_iterator find(const std::type_info &t) const {
+            return std::find_if(fields.begin(), fields.end(),
+                                [&t](const Q1v::TransactionExtraField &f) { return t == f.type(); });
+        }
 
-    std::vector<Q1v::TransactionExtraField> fields;
-  };
+        std::vector<Q1v::TransactionExtraField>::iterator find(const std::type_info &t) {
+            return std::find_if(fields.begin(), fields.end(),
+                                [&t](const Q1v::TransactionExtraField &f) { return t == f.type(); });
+        }
+
+        std::vector<Q1v::TransactionExtraField> fields;
+    };
 
 }

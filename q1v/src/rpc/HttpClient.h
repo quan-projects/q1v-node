@@ -20,107 +20,113 @@
 
 namespace Q1v {
 
-class ConnectException : public std::runtime_error  {
-public:
-  ConnectException(const std::string& whatArg);
-};
+    class ConnectException : public std::runtime_error {
+    public:
+        ConnectException(const std::string &whatArg);
+    };
 
-class HttpClient {
-public:
+    class HttpClient {
+    public:
 
-  HttpClient(System::Dispatcher& dispatcher, const std::string& address, uint16_t port);
-  ~HttpClient();
-  void request(const HttpRequest& req, HttpResponse& res);
+        HttpClient(System::Dispatcher &dispatcher, const std::string &address, uint16_t port);
 
-  bool isConnected() const;
+        ~HttpClient();
 
-private:
-  void connect();
-  void disconnect();
+        void request(const HttpRequest &req, HttpResponse &res);
 
-  const std::string m_address;
-  const uint16_t m_port;
+        bool isConnected() const;
 
-  bool m_connected = false;
-  System::Dispatcher& m_dispatcher;
-  System::TcpConnection m_connection;
-  std::unique_ptr<System::TcpStreambuf> m_streamBuf;
-};
+    private:
+        void connect();
 
-template <typename Request, typename Response>
-void invokeJsonCommand(HttpClient& client, const std::string& url, const Request& req, Response& res, const std::string& user = "", const std::string& password = "") {
-  HttpRequest hreq;
-  HttpResponse hres;
+        void disconnect();
 
-  hreq.addHeader("Content-Type", "application/json");
-  if (!user.empty() || !password.empty()) {
-    hreq.addHeader("Authorization", "Basic " + Tools::Base64::encode(user + ":" + password));
-  }
-  hreq.setUrl(url);
-  hreq.setBody(storeToJson(req));
-  client.request(hreq, hres);
+        const std::string m_address;
+        const uint16_t m_port;
 
-  if (hres.getStatus() != HttpResponse::STATUS_200) {
-    throw std::runtime_error("HTTP status: " + std::to_string(hres.getStatus()));
-  }
+        bool m_connected = false;
+        System::Dispatcher &m_dispatcher;
+        System::TcpConnection m_connection;
+        std::unique_ptr<System::TcpStreambuf> m_streamBuf;
+    };
 
-  if (!loadFromJson(res, hres.getBody())) {
-    throw std::runtime_error("Failed to parse JSON response");
-  }
-}
+    template<typename Request, typename Response>
+    void invokeJsonCommand(HttpClient &client, const std::string &url, const Request &req, Response &res,
+                           const std::string &user = "", const std::string &password = "") {
+        HttpRequest hreq;
+        HttpResponse hres;
 
-template <typename Request, typename Response>
-void invokeJsonRpcCommand(HttpClient& client, const std::string& method, const Request& req, Response& res, const std::string& user = "", const std::string& password = "") {
-  try {
+        hreq.addHeader("Content-Type", "application/json");
+        if (!user.empty() || !password.empty()) {
+            hreq.addHeader("Authorization", "Basic " + Tools::Base64::encode(user + ":" + password));
+        }
+        hreq.setUrl(url);
+        hreq.setBody(storeToJson(req));
+        client.request(hreq, hres);
 
-    JsonRpc::JsonRpcRequest jsReq;
+        if (hres.getStatus() != HttpResponse::STATUS_200) {
+            throw std::runtime_error("HTTP status: " + std::to_string(hres.getStatus()));
+        }
 
-    jsReq.setMethod(method);
-    jsReq.setParams(req);
-
-    HttpRequest httpReq;
-    HttpResponse httpRes;
-
-    httpReq.addHeader("Content-Type", "application/json");
-    if (!user.empty() || !password.empty()) {
-      httpReq.addHeader("Authorization", "Basic " + Tools::Base64::encode(user + ":" + password));
+        if (!loadFromJson(res, hres.getBody())) {
+            throw std::runtime_error("Failed to parse JSON response");
+        }
     }
-    httpReq.setUrl("/json_rpc");
-    httpReq.setBody(jsReq.getBody());
 
-    client.request(httpReq, httpRes);
+    template<typename Request, typename Response>
+    void invokeJsonRpcCommand(HttpClient &client, const std::string &method, const Request &req, Response &res,
+                              const std::string &user = "", const std::string &password = "") {
+        try {
 
-    JsonRpc::JsonRpcResponse jsRes;
+            JsonRpc::JsonRpcRequest jsReq;
 
-    //if (httpRes.getStatus() == HttpResponse::STATUS_200) {
-      jsRes.parse(httpRes.getBody());
-      if (!jsRes.getResult(res)) {
-        throw std::runtime_error("HTTP status: " + std::to_string(httpRes.getStatus()));
-      }
-    //}
+            jsReq.setMethod(method);
+            jsReq.setParams(req);
 
-  } catch (const ConnectException&) {
-    throw std::runtime_error("HTTP status: CONNECT_ERROR");
-  } catch (const std::exception&) {
-    throw std::runtime_error("HTTP status: NETWORK_ERROR");
-  }
-}
+            HttpRequest httpReq;
+            HttpResponse httpRes;
 
-template <typename Request, typename Response>
-void invokeBinaryCommand(HttpClient& client, const std::string& url, const Request& req, Response& res, const std::string& user = "", const std::string& password = "") {
-  HttpRequest hreq;
-  HttpResponse hres;
+            httpReq.addHeader("Content-Type", "application/json");
+            if (!user.empty() || !password.empty()) {
+                httpReq.addHeader("Authorization", "Basic " + Tools::Base64::encode(user + ":" + password));
+            }
+            httpReq.setUrl("/json_rpc");
+            httpReq.setBody(jsReq.getBody());
 
-  if (!user.empty() || !password.empty()) {
-    hreq.addHeader("Authorization", "Basic " + Tools::Base64::encode(user + ":" + password));
-  }
-  hreq.setUrl(url);
-  hreq.setBody(storeToBinaryKeyValue(req));
-  client.request(hreq, hres);
+            client.request(httpReq, httpRes);
 
-  if (!loadFromBinaryKeyValue(res, hres.getBody())) {
-    throw std::runtime_error("Failed to parse binary response");
-  }
-}
+            JsonRpc::JsonRpcResponse jsRes;
+
+            //if (httpRes.getStatus() == HttpResponse::STATUS_200) {
+            jsRes.parse(httpRes.getBody());
+            if (!jsRes.getResult(res)) {
+                throw std::runtime_error("HTTP status: " + std::to_string(httpRes.getStatus()));
+            }
+            //}
+
+        } catch (const ConnectException &) {
+            throw std::runtime_error("HTTP status: CONNECT_ERROR");
+        } catch (const std::exception &) {
+            throw std::runtime_error("HTTP status: NETWORK_ERROR");
+        }
+    }
+
+    template<typename Request, typename Response>
+    void invokeBinaryCommand(HttpClient &client, const std::string &url, const Request &req, Response &res,
+                             const std::string &user = "", const std::string &password = "") {
+        HttpRequest hreq;
+        HttpResponse hres;
+
+        if (!user.empty() || !password.empty()) {
+            hreq.addHeader("Authorization", "Basic " + Tools::Base64::encode(user + ":" + password));
+        }
+        hreq.setUrl(url);
+        hreq.setBody(storeToBinaryKeyValue(req));
+        client.request(hreq, hres);
+
+        if (!loadFromBinaryKeyValue(res, hres.getBody())) {
+            throw std::runtime_error("Failed to parse binary response");
+        }
+    }
 
 }

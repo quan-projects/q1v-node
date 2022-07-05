@@ -14,16 +14,17 @@
 
 namespace Q1v {
 
-class MinerConfig {
-public:
-  MinerConfig();
+    class MinerConfig {
+    public:
+        MinerConfig();
 
-  static void initOptions(boost::program_options::options_description& desc);
-  void init(const boost::program_options::variables_map& options);
+        static void initOptions(boost::program_options::options_description &desc);
 
-  std::string extraMessages;
-  std::string startMining;
-  uint32_t miningThreads;
-};
+        void init(const boost::program_options::variables_map &options);
+
+        std::string extraMessages;
+        std::string startMining;
+        uint32_t miningThreads;
+    };
 
 } //namespace Q1v

@@ -12,20 +12,22 @@
 
 namespace Logging {
 
-class StreamLogger : public CommonLogger {
-public:
-  StreamLogger(Level level = DEBUGGING);
-  StreamLogger(std::ostream& stream, Level level = DEBUGGING);
-  void attachToStream(std::ostream& stream);
+    class StreamLogger : public CommonLogger {
+    public:
+        StreamLogger(Level level = DEBUGGING);
 
-protected:
-  virtual void doLogString(const std::string& message) override;
+        StreamLogger(std::ostream &stream, Level level = DEBUGGING);
 
-protected:
-  std::ostream* stream;
+        void attachToStream(std::ostream &stream);
 
-private:
-  std::mutex mutex;
-};
+    protected:
+        virtual void doLogString(const std::string &message) override;
+
+    protected:
+        std::ostream *stream;
+
+    private:
+        std::mutex mutex;
+    };
 
 }

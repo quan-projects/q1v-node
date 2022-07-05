@@ -10,16 +10,16 @@
 
 namespace System {
 
-EventLock::EventLock(Event& event) : event(event) {
-  while (!event.get()) {
-    event.wait();
-  }
+    EventLock::EventLock(Event &event) : event(event) {
+        while (!event.get()) {
+            event.wait();
+        }
 
-  event.clear();
-}
+        event.clear();
+    }
 
-EventLock::~EventLock() {
-  event.set();
-}
+    EventLock::~EventLock() {
+        event.set();
+    }
 
 }

@@ -18,8 +18,7 @@ namespace Q1v {
     public:
 
         enum SerializerType {
-            INPUT,
-            OUTPUT
+            INPUT, OUTPUT
         };
 
         virtual ~ISerializer() = default;
@@ -69,7 +68,7 @@ namespace Q1v {
     }
 
     template<typename T>
-    bool serialize(T &value, const Common::StringView& name, ISerializer &serializer) {
+    bool serialize(T &value, const Common::StringView &name, ISerializer &serializer) {
         if (!serializer.beginObject(name)) {
             return false;
         }

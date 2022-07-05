@@ -8,9 +8,9 @@
 #include "HttpParserErrorCodes.h"
 
 namespace Q1v {
-namespace error {
+    namespace error {
 
-HttpParserErrorCategory HttpParserErrorCategory::INSTANCE;
+        HttpParserErrorCategory HttpParserErrorCategory::INSTANCE;
 
-} //namespace error
+    } //namespace error
 } //namespace Q1v

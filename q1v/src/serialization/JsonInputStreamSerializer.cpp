@@ -12,20 +12,21 @@
 
 namespace Q1v {
 
-namespace {
+    namespace {
 
-Common::JsonValue getJsonValueFromStreamHelper(std::istream& stream) {
-  Common::JsonValue value;
-  stream >> value;
-  return value;
-}
+        Common::JsonValue getJsonValueFromStreamHelper(std::istream &stream) {
+            Common::JsonValue value;
+            stream >> value;
+            return value;
+        }
 
-}
+    }
 
-JsonInputStreamSerializer::JsonInputStreamSerializer(std::istream& stream) : JsonInputValueSerializer(getJsonValueFromStreamHelper(stream)) {
-}
+    JsonInputStreamSerializer::JsonInputStreamSerializer(std::istream &stream) : JsonInputValueSerializer(
+            getJsonValueFromStreamHelper(stream)) {
+    }
 
-JsonInputStreamSerializer::~JsonInputStreamSerializer() {
-}
+    JsonInputStreamSerializer::~JsonInputStreamSerializer() {
+    }
 
 } //namespace Q1v

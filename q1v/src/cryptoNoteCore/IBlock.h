@@ -10,12 +10,14 @@
 #include "CryptoNote.h"
 
 namespace Q1v {
-class IBlock {
-public:
-  virtual ~IBlock();
+    class IBlock {
+    public:
+        virtual ~IBlock();
 
-  virtual const Block& getBlock() const = 0;
-  virtual size_t getTransactionCount() const = 0;
-  virtual const Transaction& getTransaction(size_t index) const = 0;
-};
+        virtual const Block &getBlock() const = 0;
+
+        virtual size_t getTransactionCount() const = 0;
+
+        virtual const Transaction &getTransaction(size_t index) const = 0;
+    };
 }

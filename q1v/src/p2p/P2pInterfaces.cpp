@@ -9,7 +9,7 @@
 
 namespace Q1v {
 
-IP2pConnection::~IP2pConnection() {
-}
+    IP2pConnection::~IP2pConnection() {
+    }
 
 }

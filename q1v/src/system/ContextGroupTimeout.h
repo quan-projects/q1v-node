@@ -5,20 +5,21 @@
  * Full source's copyright information can be found in the "/full_copyright/bytecoin_copyright.txt"
 */
 
-#pragma once 
+#pragma once
+
 #include <chrono>
 #include <system/ContextGroup.h>
 #include <system/Timer.h>
 
 namespace System {
 
-class ContextGroupTimeout {
-public: 
-  ContextGroupTimeout(Dispatcher&, ContextGroup&, std::chrono::nanoseconds);
+    class ContextGroupTimeout {
+    public:
+        ContextGroupTimeout(Dispatcher &, ContextGroup &, std::chrono::nanoseconds);
 
-private: 
-  Timer timeoutTimer;
-  ContextGroup workingContextGroup;
-};
+    private:
+        Timer timeoutTimer;
+        ContextGroup workingContextGroup;
+    };
 
 }

@@ -16,10 +16,11 @@
 namespace Q1v {
 
 //deserialization
-class JsonInputStreamSerializer : public JsonInputValueSerializer {
-public:
-  JsonInputStreamSerializer(std::istream& stream);
-  virtual ~JsonInputStreamSerializer();
-};
+    class JsonInputStreamSerializer : public JsonInputValueSerializer {
+    public:
+        JsonInputStreamSerializer(std::istream &stream);
+
+        virtual ~JsonInputStreamSerializer();
+    };
 
 }

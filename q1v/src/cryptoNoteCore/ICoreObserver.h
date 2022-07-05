@@ -9,11 +9,13 @@
 
 namespace Q1v {
 
-class ICoreObserver {
-public:
-  virtual ~ICoreObserver() {};
-  virtual void blockchainUpdated() {};
-  virtual void poolUpdated() {};
-};
+    class ICoreObserver {
+    public:
+        virtual ~ICoreObserver() {};
+
+        virtual void blockchainUpdated() {};
+
+        virtual void poolUpdated() {};
+    };
 
 }
