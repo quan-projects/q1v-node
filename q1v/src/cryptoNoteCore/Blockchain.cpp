@@ -52,7 +52,8 @@ namespace {
 
 }
 
-namespace std { // NOLINT(cert-dcl58-cpp)
+namespace std {
+    // NOLINT(cert-dcl58-cpp)
     bool operator<(const Crypto::Hash &hash1, const Crypto::Hash &hash2) {
         return memcmp(&hash1, &hash2, Crypto::HASH_SIZE) < 0;
     }
@@ -1211,9 +1212,7 @@ namespace Q1v {
         }
 
         // refresh checkpoints list from DNS
-#ifndef __ANDROID__
         m_checkpoints.load_checkpoints_from_dns();
-#endif
 
         if (!m_checkpoints.is_alternative_block_allowed(getCurrentBlockchainHeight(), block_height)) {
             logger(TRACE) << "Block with id: " << id << std::endl

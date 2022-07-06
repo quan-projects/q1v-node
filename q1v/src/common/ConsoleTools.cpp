@@ -9,25 +9,14 @@
 
 #include <stdio.h>
 
-#ifdef _WIN32
-#include <Windows.h>
-#include <io.h>
-#else
-
 #include <iostream>
 #include <unistd.h>
-
-#endif
 
 namespace Common {
     namespace Console {
 
         bool isConsoleTty() {
-#if defined(WIN32)
-            static bool istty = 0 != _isatty(_fileno(stdout));
-#else
             static bool istty = 0 != isatty(fileno(stdout));
-#endif
             return istty;
         }
 
@@ -39,34 +28,6 @@ namespace Common {
             if (color > Color::BrightMagenta) {
                 color = Color::Default;
             }
-
-#ifdef _WIN32
-
-            static WORD winColors[] = {
-              // default
-              FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE,
-              // main
-              FOREGROUND_BLUE,
-              FOREGROUND_GREEN,
-              FOREGROUND_RED,
-              FOREGROUND_RED | FOREGROUND_GREEN,
-              FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE,
-              FOREGROUND_GREEN | FOREGROUND_BLUE,
-              FOREGROUND_RED | FOREGROUND_BLUE,
-              // bright
-              FOREGROUND_BLUE | FOREGROUND_INTENSITY,
-              FOREGROUND_GREEN | FOREGROUND_INTENSITY,
-              FOREGROUND_RED | FOREGROUND_INTENSITY,
-              FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY,
-              FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY,
-              FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY,
-              FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY
-            };
-
-            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), winColors[static_cast<size_t>(color)]);
-
-#else
-
             static const char *ansiColors[] = {
                     // default
                     "\033[0m",
@@ -77,9 +38,6 @@ namespace Common {
 
             std::cout << ansiColors[static_cast<size_t>(color)];
 
-#endif
-
         }
-
     }
 }

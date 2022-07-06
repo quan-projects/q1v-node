@@ -223,7 +223,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
         Q1v::Currency currency = currencyBuilder.currency();
-        Q1v::core ccore(currency, nullptr, logManager, true, command_line::get_arg(vm, arg_cache_size));
+        Q1v::core ccore(currency, nullptr, logManager, false, command_line::get_arg(vm, arg_cache_size));
         //bool use_checkpoints = !command_line::get_arg(vm, arg_no_checkpoints);
         //if(use_checkpoints) {
         Q1v::Checkpoints checkpoints(logManager);

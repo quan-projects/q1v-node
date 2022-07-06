@@ -13,14 +13,8 @@
 #include <iomanip>
 #include <sstream>
 
-#ifdef _WIN32
-#include <Windows.h>
-#else
-
 #include <unistd.h>
 #include <stdio.h>
-
-#endif
 
 #include <boost/algorithm/string.hpp>
 
@@ -55,9 +49,6 @@ namespace Common {
 
         m_stop = true;
         m_queue.close();
-#ifdef _WIN32
-        ::CloseHandle(::GetStdHandle(STD_INPUT_HANDLE));
-#endif
 
         if (m_thread.joinable()) {
             m_thread.join();
@@ -86,12 +77,7 @@ namespace Common {
     }
 
     bool AsyncConsoleReader::waitInput() {
-#ifndef _WIN32
-#if defined(__OpenBSD__) || defined(__ANDROID__)
-        int stdin_fileno = fileno(stdin);
-#else
         int stdin_fileno = ::fileno(stdin);
-#endif
 
         while (!m_stop) {
             fd_set read_set;
@@ -116,21 +102,6 @@ namespace Common {
                 return true;
             }
         }
-#else
-        while (!m_stop.load(std::memory_order_relaxed))
-        {
-          int retval = ::WaitForSingleObject(::GetStdHandle(STD_INPUT_HANDLE), 100);
-          switch (retval)
-          {
-            case WAIT_FAILED:
-              return false;
-            case WAIT_OBJECT_0:
-              return true;
-            default:
-              break;
-          }
-        }
-#endif
 
         return !m_stop;
     }

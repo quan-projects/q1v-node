@@ -38,12 +38,6 @@
 #include <string.h>
 #include <boost/align/aligned_alloc.hpp>
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <malloc.h>
-#include <intrin.h>
-#define HAS_WIN_INTRIN_API
-#endif
-
 // Note HAS_INTEL_HW and HAS_ARM_HW only mean we can emit the AES instructions
 // check CPU support for the hardware AES encryption has to be done at runtime
 #if defined(__x86_64__) || defined(__i386__) || defined(_M_X86) || defined(_M_X64)
