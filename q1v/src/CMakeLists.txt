@@ -1,0 +1,38 @@
+add_definitions(-DSTATICLIB)
+
+message(STATUS "version: ${VERSION}")
+
+file(GLOB_RECURSE BlockchainExplorer blockchainExplorer/*)
+file(GLOB_RECURSE Common common/*)
+file(GLOB_RECURSE Crypto crypto/*)
+file(GLOB_RECURSE CryptoNoteCore cryptoNoteCore/* cryptoNoteConfig.h)
+file(GLOB_RECURSE CryptoNoteProtocol cryptoNoteProtocol/*)
+file(GLOB_RECURSE Daemon daemon/*)
+file(GLOB_RECURSE Http http/*)
+file(GLOB_RECURSE Logging logging/*)
+file(GLOB_RECURSE P2p p2p/*)
+file(GLOB_RECURSE Rpc rpc/*)
+file(GLOB_RECURSE Serialization serialization/*)
+file(GLOB_RECURSE System system/* ${Platform})
+file(GLOB_RECURSE Wallet wallet/*)
+
+source_group("" FILES $${Daemon})
+
+add_library(BlockchainExplorer ${BlockchainExplorer})
+add_library(Common ${Common})
+add_library(Crypto ${Crypto})
+add_library(CryptoNoteCore ${CryptoNoteCore})
+add_library(Http ${Http})
+add_library(Logging ${Logging})
+add_library(Rpc ${Rpc})
+add_library(P2P ${CryptoNoteProtocol} ${P2p})
+add_library(Serialization ${Serialization})
+add_library(System ${System})
+
+add_executable(Daemon ${Daemon} ${Wallet})
+
+target_link_libraries(P2P miniupnpc::miniupnpc)
+target_link_libraries(Daemon CryptoNoteCore P2P Rpc System Http Logging Common Crypto BlockchainExplorer ${Boost_LIBRARIES} Serialization)
+target_link_libraries(Daemon -lresolv)
+add_dependencies(Daemon version)
+set_property(TARGET Daemon PROPERTY OUTPUT_NAME "${Q1V_PROJECT_NAME}-node")
