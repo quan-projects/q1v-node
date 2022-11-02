@@ -19,6 +19,7 @@
 #pragma once
 
 #include <map>
+#include <mutex>
 #include "CryptoNoteBasicImpl.h"
 #include <logging/LoggerRef.h>
 #include "crypto/hash.h"
@@ -45,5 +46,6 @@ namespace Q1v {
     private:
         std::map<uint64_t, Crypto::Hash> m_points;
         Logging::LoggerRef logger;
+        mutable std::mutex *m_mutex;
     };
 }

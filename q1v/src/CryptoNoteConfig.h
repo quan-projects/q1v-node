@@ -134,7 +134,10 @@ namespace Q1v {
         const char *blockId;
     };
 
-    const std::initializer_list<CheckpointData> CHECKPOINTS = {{1,      "62b3674f55adf428b586c9c45ec0f0c57660c61ac28c3f3bc087f8fccf246230"},
+    const std::initializer_list<CheckpointData> CHECKPOINTS = {
+            {153790, "74a87612eefb8a029e26e9ce6e22524a88b9d4ad9964524e025135d1d8a650af"}};
+    /*
+     const std::initializer_list<CheckpointData> CHECKPOINTS = {{1,      "62b3674f55adf428b586c9c45ec0f0c57660c61ac28c3f3bc087f8fccf246230"},
                                                                {14000,  "acd4ffd637dedf06237bdc4ed6175bdcac9e01f907846a7d6d910a15826c4916"},
                                                                {19111,  "80a25bf8b24f6b286d81d3fb9f65a3dd55c9fe1d508b3d463fa1c0512e45af6f"},
                                                                {19112,  "7a0a41f6ccbf72b47a21841b8e876f29877bb57aa15d7adda27c757e77fc7021"},
@@ -195,6 +198,7 @@ namespace Q1v {
                                                                {153559, "f18fd86dfd2a2d2d5bc8b4ae33994921b8afed5fa75faa7142d78cb4e00241f7"},
                                                                {153560, "d4199fa557bbb0e2d29dc306a65c731f210fe4cf47293230828ccba96b13929d"},
                                                                {153790, "74a87612eefb8a029e26e9ce6e22524a88b9d4ad9964524e025135d1d8a650af"}};
+*/
 
 } // CryptoNote
 
