@@ -80,46 +80,46 @@ namespace Q1v {
     std::unordered_map<std::string, RpcServer::RpcHandler<RpcServer::HandlerFunction>> RpcServer::s_handlers = {
 
             // binary handlers
-            {"/getblocks.bin",             {binMethod<COMMAND_RPC_GET_BLOCKS_FAST>(&RpcServer::on_get_blocks),     false}},
+            {"/getblocks.bin",             {binMethod<COMMAND_RPC_GET_BLOCKS_FAST>(&RpcServer::on_get_blocks), false}},
             {"/queryblocks.bin",           {binMethod<COMMAND_RPC_QUERY_BLOCKS>(
-                    &RpcServer::on_query_blocks),                                                                  false}},
+                    &RpcServer::on_query_blocks),                                                              false}},
             {"/queryblockslite.bin",       {binMethod<COMMAND_RPC_QUERY_BLOCKS_LITE>(
-                    &RpcServer::on_query_blocks_lite),                                                             false}},
+                    &RpcServer::on_query_blocks_lite),                                                         false}},
             {"/get_o_indexes.bin",         {binMethod<COMMAND_RPC_GET_TX_GLOBAL_OUTPUTS_INDEXES>(
-                    &RpcServer::on_get_indexes),                                                                   false}},
+                    &RpcServer::on_get_indexes),                                                               false}},
             {"/getrandom_outs.bin",        {binMethod<COMMAND_RPC_GET_RANDOM_OUTPUTS_FOR_AMOUNTS>(
-                    &RpcServer::on_get_random_outs),                                                               false}},
+                    &RpcServer::on_get_random_outs),                                                           false}},
             {"/get_pool_changes.bin",      {binMethod<COMMAND_RPC_GET_POOL_CHANGES>(
-                    &RpcServer::onGetPoolChanges),                                                                 false}},
+                    &RpcServer::onGetPoolChanges),                                                             false}},
             {"/get_pool_changes_lite.bin", {binMethod<COMMAND_RPC_GET_POOL_CHANGES_LITE>(
-                    &RpcServer::onGetPoolChangesLite),                                                             false}},
+                    &RpcServer::onGetPoolChangesLite),                                                         false}},
 
             // json handlers
             {"/getinfo",                   {jsonMethod<COMMAND_RPC_GET_INFO>(
-                    &RpcServer::on_get_info),                                                                      true}},
+                    &RpcServer::on_get_info),                                                                  true}},
             {"/getheight",                 {jsonMethod<COMMAND_RPC_GET_HEIGHT>(
-                    &RpcServer::on_get_height),                                                                    true}},
+                    &RpcServer::on_get_height),                                                                true}},
             {"/gettransactions",           {jsonMethod<COMMAND_RPC_GET_TRANSACTIONS>(
-                    &RpcServer::on_get_transactions),                                                              false}},
+                    &RpcServer::on_get_transactions),                                                          false}},
             {"/sendrawtransaction",        {jsonMethod<COMMAND_RPC_SEND_RAW_TX>(
-                    &RpcServer::on_send_raw_tx),                                                                   false}},
+                    &RpcServer::on_send_raw_tx),                                                               false}},
             {"/feeaddress",                {jsonMethod<COMMAND_RPC_GET_FEE_ADDRESS>(
-                    &RpcServer::on_get_fee_address),                                                               true}},
+                    &RpcServer::on_get_fee_address),                                                           true}},
             {"/peers",                     {jsonMethod<COMMAND_RPC_GET_PEER_LIST>(
-                    &RpcServer::on_get_peer_list),                                                                 true}},
+                    &RpcServer::on_get_peer_list),                                                             true}},
 
             // disabled in restricted rpc mode
             {"/start_mining",              {jsonMethod<COMMAND_RPC_START_MINING>(
-                    &RpcServer::on_start_mining),                                                                  false}},
+                    &RpcServer::on_start_mining),                                                              false}},
             {"/stop_mining",               {jsonMethod<COMMAND_RPC_STOP_MINING>(
-                    &RpcServer::on_stop_mining),                                                                   false}},
+                    &RpcServer::on_stop_mining),                                                               false}},
             {"/stop_daemon",               {jsonMethod<COMMAND_RPC_STOP_DAEMON>(
-                    &RpcServer::on_stop_daemon),                                                                   true}},
+                    &RpcServer::on_stop_daemon),                                                               true}},
 
             // json rpc
             {"/json_rpc",                  {std::bind(&RpcServer::processJsonRpcRequest, std::placeholders::_1,
                                                       std::placeholders::_2,
-                                                      std::placeholders::_3),                                      true}}};
+                                                      std::placeholders::_3),                                  true}}};
 
     RpcServer::RpcServer(System::Dispatcher &dispatcher, Logging::ILogger &log, core &c, NodeServer &p2p,
                          const ICryptoNoteProtocolQuery &protocolQuery) : HttpServer(dispatcher, log),
@@ -166,33 +166,33 @@ namespace Q1v {
 
             static std::unordered_map<std::string, RpcServer::RpcHandler<JsonMemberMethod>> jsonRpcHandlers = {
 
-                    {"getblockcount",                {makeMemberMethod(&RpcServer::on_getblockcount),              true}},
+                    {"getblockcount",                {makeMemberMethod(&RpcServer::on_getblockcount), true}},
                     {"on_getblockhash",              {makeMemberMethod(
-                            &RpcServer::on_getblockhash),                                                          false}},
+                            &RpcServer::on_getblockhash),                                             false}},
                     {"getblocktemplate",             {makeMemberMethod(
-                            &RpcServer::on_getblocktemplate),                                                      false}},
+                            &RpcServer::on_getblocktemplate),                                         false}},
                     {"getcurrencyid",                {makeMemberMethod(
-                            &RpcServer::on_get_currency_id),                                                       true}},
+                            &RpcServer::on_get_currency_id),                                          true}},
                     {"submitblock",                  {makeMemberMethod(
-                            &RpcServer::on_submitblock),                                                           false}},
+                            &RpcServer::on_submitblock),                                              false}},
                     {"getlastblockheader",           {makeMemberMethod(
-                            &RpcServer::on_get_last_block_header),                                                 false}},
+                            &RpcServer::on_get_last_block_header),                                    false}},
                     {"getblockheaderbyheight",       {makeMemberMethod(
-                            &RpcServer::on_get_block_header_by_height),                                            false}},
+                            &RpcServer::on_get_block_header_by_height),                               false}},
                     {"f_blocks_list_json",           {makeMemberMethod(
-                            &RpcServer::f_on_blocks_list_json),                                                    false}},
+                            &RpcServer::f_on_blocks_list_json),                                       false}},
                     {"f_blocks_limited_json",        {makeMemberMethod(
-                            &RpcServer::f_on_blocks_limited_json),                                                 false}},
+                            &RpcServer::f_on_blocks_limited_json),                                    false}},
                     {"f_block_json",                 {makeMemberMethod(
-                            &RpcServer::f_on_block_json),                                                          false}},
+                            &RpcServer::f_on_block_json),                                             false}},
                     {"f_transaction_json",           {makeMemberMethod(
-                            &RpcServer::f_on_transaction_json),                                                    false}},
+                            &RpcServer::f_on_transaction_json),                                       false}},
                     {"f_pool_json",                  {makeMemberMethod(
-                            &RpcServer::f_on_pool_json),                                                           false}},
+                            &RpcServer::f_on_pool_json),                                              false}},
                     {"k_transactions_by_payment_id", {makeMemberMethod(
-                            &RpcServer::k_on_transactions_by_payment_id),                                          false}},
+                            &RpcServer::k_on_transactions_by_payment_id),                             false}},
                     {"validateaddress",              {makeMemberMethod(
-                            &RpcServer::on_validate_address),                                                      false}},};
+                            &RpcServer::on_validate_address),                                         false}},};
 
             auto it = jsonRpcHandlers.find(jsonRequest.getMethod());
             if (it == jsonRpcHandlers.end()) {
@@ -403,7 +403,7 @@ namespace Q1v {
             BinaryArray txBlob;
             if (!toBinaryArray(tx, txBlob)) {
                 rsp.status = "Internal error";
-                break;;
+                break;
             }
 
             rsp.addedTxs.emplace_back(std::move(txBlob));
@@ -840,18 +840,18 @@ namespace Q1v {
         res.block.totalFeeAmount = 0;
 
         for (const Transaction &tx: txs) {
-            f_transaction_short_response transaction_short;
+            f_transaction_short_response transaction_short_;
             uint64_t amount_in = 0;
             get_inputs_money_amount(tx, amount_in);
             uint64_t amount_out = get_outs_money_amount(tx);
 
-            transaction_short.hash = Common::podToHex(getObjectHash(tx));
-            transaction_short.fee = amount_in - amount_out;
-            transaction_short.amount_out = amount_out;
-            transaction_short.size = getObjectBinarySize(tx);
-            res.block.transactions.push_back(transaction_short);
+            transaction_short_.hash = Common::podToHex(getObjectHash(tx));
+            transaction_short_.fee = amount_in - amount_out;
+            transaction_short_.amount_out = amount_out;
+            transaction_short_.size = getObjectBinarySize(tx);
+            res.block.transactions.push_back(transaction_short_);
 
-            res.block.totalFeeAmount += transaction_short.fee;
+            res.block.totalFeeAmount += transaction_short_.fee;
         }
 
         res.status = CORE_RPC_STATUS_OK;
