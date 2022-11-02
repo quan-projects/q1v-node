@@ -127,7 +127,7 @@ namespace Q1v {
     const size_t P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT = 5000;          // 5 seconds
     const char P2P_STAT_TRUSTED_PUB_KEY[] = "";
 
-    const char *const SEED_NODES[] = {"173.249.38.45:8313", "173.212.225.179:8313"};
+    const char *const SEED_NODES[] = {"207.180.247.232:8314", "173.249.38.45:8313"};
 
     struct CheckpointData {
         uint32_t height;
