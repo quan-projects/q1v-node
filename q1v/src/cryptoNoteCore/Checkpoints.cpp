@@ -31,12 +31,16 @@
 #include <vector>
 #include <iterator>
 #include <boost/algorithm/string.hpp>
+#include <thread>
+#include <condition_variable>
 
 using namespace Logging;
 
 namespace Q1v {
     //---------------------------------------------------------------------------
-    Checkpoints::Checkpoints(Logging::ILogger &log) : logger(log, "checkpoints") {}
+    Checkpoints::Checkpoints(Logging::ILogger &log) : logger(log, "checkpoints") {
+        m_mutex = new std::mutex();
+    }
 
     //---------------------------------------------------------------------------
     bool Checkpoints::add_checkpoint(uint64_t height, const std::string &hash_str) {
@@ -45,7 +49,7 @@ namespace Q1v {
             logger(WARNING) << "Wrong hash in checkpoint for height " << height;
             return false;
         }
-        if (!(0 == m_points.count(height))) {
+        if (0 != m_points.count(height)) {
             logger(WARNING) << "Checkpoint already exists.";
             return false;
         }
@@ -114,33 +118,61 @@ namespace Q1v {
 
     bool Checkpoints::load_checkpoints_from_dns() {
         // better code from Karbo developers
-        std::string domain("checkpoints.niobiocash.money");
-        std::vector<std::string> records;
+        try {
+            std::lock_guard<std::mutex> lock(*m_mutex);
+            std::mutex m;
+            std::condition_variable cv;
+            std::string domain("checkpoints.quanproject.com");
+            std::vector<std::string> records;
+            bool res = true;
 
-        logger(Logging::INFO) << "Fetching DNS checkpoint records.";
+            std::thread t([&cv, &domain, &res, &records]() {
+                res = Common::fetch_dns_txt(domain, records);
+                cv.notify_one();
+            });
 
-        if (!Common::fetch_dns_txt(domain, records)) {
-            logger(Logging::INFO) << "Failed to lookup DNS checkpoint records";
-        }
+            t.detach();
 
-        for (const auto &record: records) {
-            uint64_t height;
-            Crypto::Hash hash = NULL_HASH;
-            std::stringstream ss;
-            size_t del = record.find_first_of(':');
-            std::string height_str = record.substr(0, del), hash_str = record.substr(del + 1, 64);
-            ss.str(height_str);
-            ss >> height;
-            char c;
-            if (del == std::string::npos) continue;
-            if ((ss.fail() || ss.get(c)) || !Common::podFromHex(hash_str, hash)) {
-                logger(Logging::INFO) << "Failed to parse DNS checkpoint record: " << record;
-                continue;
+            {
+                std::unique_lock<std::mutex> l(m);
+                if (cv.wait_for(l, std::chrono::milliseconds(1000)) == std::cv_status::timeout) {
+                    logger(Logging::INFO) << "Timeout lookup DNS checkpoint records from " << domain;
+                    return false;
+                }
             }
-            if (0 == m_points.count(height)) {
-                add_checkpoint(height, hash_str);
+
+            if (!res) {
+                logger(Logging::INFO) << "Failed to lookup DNS checkpoint records from " + domain;
+                return false;
             }
+            //
+            for (const auto &record: records) {
+                uint64_t height;
+                Crypto::Hash hash = NULL_HASH;
+                std::stringstream ss;
+                size_t del = record.find_first_of(':');
+                std::string height_str = record.substr(0, del), hash_str = record.substr(del + 1, 64);
+                ss.str(height_str);
+                ss >> height;
+                char c;
+                if (del == std::string::npos) continue;
+                if ((ss.fail() || ss.get(c)) || !Common::podFromHex(hash_str, hash)) {
+                    logger(Logging::INFO) << "Failed to parse DNS checkpoint record: " << record;
+                    continue;
+                }
+                if (0 == m_points.count(height)) {
+                    add_checkpoint(height, hash_str);
+                    logger(Logging::INFO) << "Added DNS checkpoint: " << height_str << ":" << hash_str;
+                } else {
+                    logger(Logging::INFO) << "Checkpoint already exists for height: " << height
+                                          << ". Ignoring DNS checkpoint.";
+                }
+            }
+            //
+            return true;
+        } catch (std::runtime_error &e) {
+            logger(Logging::INFO) << e.what();
+            return false;
         }
-        return true;
     }
 }
